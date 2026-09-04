@@ -1,0 +1,1384 @@
+//@version=6
+indicator("Absolute Dollar ICT Killzones EAT", "Tron Alpha", overlay=true, max_labels_count=500, max_lines_count=500, max_boxes_count=500)
+
+// ══════════════════════════════════════════════════════════════════════════
+//  MERGED SYSTEM
+//  [A] ICT Killzones & Pivots  — EAT H4/H1 session boxes, pivots, opens,
+//      timestamps, DWM separators, range table.
+//  [B] Absolute Dollar Agent   — Market Structure (BOS/CHoCH), RSI Momentum,
+//      Smart Signals, EMA 21/55, Trend Truth, Liquidity Trail, Position Tool.
+//  [C] Smart PSAR Filter       — MTF Parabolic SAR Alignment & Sweep Detection.
+//  [D] Unified Dashboard       — Agent state + Live H4/H1 close tracker.
+// ══════════════════════════════════════════════════════════════════════════
+
+// ============================================
+// 1. CONSTANT FUNCTIONS  (Killzones)
+// ============================================
+get_line_type(_style) =>
+    switch _style
+        "Solid" => line.style_solid
+        "Dotted" => line.style_dotted
+        "Dashed" => line.style_dashed
+
+get_size(x) =>
+    switch x
+        "Auto" => size.auto
+        "Tiny" => size.tiny
+        "Small" => size.small
+        "Normal" => size.normal
+        "Large" => size.large
+        "Huge" => size.huge
+
+get_table_pos(pos) =>
+    switch pos
+        "Bottom Center" => position.bottom_center
+        "Bottom Left" => position.bottom_left
+        "Bottom Right" => position.bottom_right
+        "Middle Center" => position.middle_center
+        "Middle Left" => position.middle_left
+        "Middle Right" => position.middle_right
+        "Top Center" => position.top_center
+        "Top Left" => position.top_left
+        "Top Right" => position.top_right
+
+// ============================================
+// 2. INPUTS (SURGICALLY OPTIMIZED FOR M1/M5 ALPHA)
+// ============================================
+// --- Settings ---
+var g_SETTINGS      = "Settings"
+max_days            = input.int(2, "Session Drawing Limit", 1, tooltip = "Only this many drawings will be kept on the chart, for each selected drawing type (killzone boxes, pivot lines, open lines, etc.)", group = g_SETTINGS)
+tf_limit            = input.timeframe("15", "Timeframe Limit", tooltip = "Drawings will not appear on timeframes greater than or equal to this. Optimized to 15m for 1m/5m scalpers.", group = g_SETTINGS)
+gmt_tz              = input.string('GMT+3', "Timezone", options = ['America/New_York','GMT-12','GMT-11','GMT-10','GMT-9','GMT-8','GMT-7','GMT-6','GMT-5','GMT-4','GMT-3','GMT-2','GMT-1','GMT+0','GMT+1','GMT+2','GMT+3','GMT+4','GMT+5','GMT+6','GMT+7','GMT+8','GMT+9','GMT+10','GMT+11','GMT+12','GMT+13','GMT+14'], tooltip = "Set to GMT+3 for East African Time (EAT). H4/H1 candles close on the hour.", group = g_SETTINGS)
+kz_lbl_size         = get_size(input.string('Normal', "Label Size", options = ['Auto', 'Tiny', 'Small', 'Normal', 'Large', 'Huge'], tooltip = "The size of all killzone labels", group = g_SETTINGS))
+txt_color           = input.color(color.black, "Text Color", tooltip = "The color of all label and table text", group = g_SETTINGS)
+use_cutoff          = input.bool(true, "Drawing Cutoff Time", inline = "CO", tooltip = "When enabled, all pivots and open price lines will stop extending at this time", group = g_SETTINGS)
+cutoff              = input.session("1900-1901", "", inline = "CO", group = g_SETTINGS)
+
+var tf_limit_is_equal_or_more_chart_tf = timeframe.in_seconds('') <= timeframe.in_seconds(tf_limit)
+
+// --- Killzones ---
+var g_KZ            = "Killzones"
+show_kz             = input.bool(true, "Show Killzone Boxes", inline = "KZ", group = g_KZ)
+show_kz_text        = input.bool(true, "Display Text", inline = "KZ", group = g_KZ)
+
+use_asia            = input.bool(true, "", inline = "ASIA", group = g_KZ)
+as_txt              = input.string("Asia (H4-1)", "", inline = "ASIA", group = g_KZ)
+asia                = input.session("0300-0700", "", inline = "ASIA", group = g_KZ)
+as_color            = input.color(color.blue, "", inline = "ASIA", group = g_KZ)
+
+use_london          = input.bool(true, "", inline = "LONDON", group = g_KZ)
+lo_txt              = input.string("LDN Open (H4-2)", "", inline = "LONDON", group = g_KZ)
+london              = input.session("0700-1100", "", inline = "LONDON", group = g_KZ)
+lo_color            = input.color(color.red, "", inline = "LONDON", group = g_KZ)
+
+use_nyam            = input.bool(true, "", inline = "NYAM", group = g_KZ)
+na_txt              = input.string("LDN Mid (H4-3)", "", inline = "NYAM", group = g_KZ)
+nyam                = input.session("1100-1500", "", inline = "NYAM", group = g_KZ)
+na_color            = input.color(#089981, "", inline = "NYAM", group = g_KZ)
+
+use_nylu            = input.bool(true, "", inline = "NYLU", group = g_KZ)
+nl_txt              = input.string("LDN-NY Overlap (H4-4)", "", inline = "NYLU", group = g_KZ)
+nylu                = input.session("1500-1900", "", inline = "NYLU", group = g_KZ)
+nl_color            = input.color(color.yellow, "", inline = "NYLU", group = g_KZ)
+
+use_nypm            = input.bool(false, "", inline = "NYPM", group = g_KZ)
+np_txt              = input.string("NY PM (H4-5)", "", inline = "NYPM", group = g_KZ)
+nypm                = input.session("1900-2300", "", inline = "NYPM", group = g_KZ)
+np_color            = input.color(color.purple, "", inline = "NYPM", group = g_KZ)
+
+box_transparency    = input.int(70, "Box Transparency", 0, 100, group = g_KZ)
+text_transparency   = input.int(50, "Text Transparency", 0, 100, group = g_KZ)
+
+// --- Killzone Pivots ---
+var g_LABELS        = "Killzone Pivots"
+show_pivots         = input.bool(true, "Show Pivots", inline = "PV", group = g_LABELS)
+use_alerts          = input.bool(true, "Alert Broken Pivots", inline = "PV", tooltip = "The desired killzones must be enabled at the time that an alert is created, along with the show pivots option, in order for alerts to work", group = g_LABELS)
+show_midpoints      = input.bool(true, "Show Pivot Midpoints", inline = "mp", group = g_LABELS)
+stop_midpoints      = input.bool(true, "Stop Once Mitigated", inline = "mp", group = g_LABELS) 
+show_labels         = input.bool(true, "Show Pivot Labels", inline = "LB", tooltip = "Show labels denoting each killzone's high and low. Optionally choose to show the price of each level. Right side will show labels on the right-hand side of the chart until they are reached", group = g_LABELS)
+label_price         = input.bool(true, "Display Price", inline = "LB", group = g_LABELS)
+label_right         = input.bool(true, "Right Side", inline = "LB", group = g_LABELS)
+ext_pivots          = input.string("Until Mitigated", "Extend Pivots...", options = ['Until Mitigated', 'Past Mitigation'], group = g_LABELS)
+ext_which           = input.string("Most Recent", "...From Which Sessions", options = ['Most Recent', 'All'], group = g_LABELS)
+
+ash_str             = input.string("H4-1.H", "Killzone 1 Labels", inline = "L_AS", group = g_LABELS)
+asl_str             = input.string("H4-1.L", "", inline = "L_AS", group = g_LABELS)
+
+loh_str             = input.string("H4-2.H", "Killzone 2 Labels", inline = "L_LO", group = g_LABELS)
+lol_str             = input.string("H4-2.L", "", inline = "L_LO", group = g_LABELS)
+
+nah_str             = input.string("H4-3.H", "Killzone 3 Labels", inline = "L_NA", group = g_LABELS)
+nal_str             = input.string("H4-3.L", "", inline = "L_NA", group = g_LABELS)
+
+nlh_str             = input.string("H4-4.H", "Killzone 4 Labels", inline = "L_NL", group = g_LABELS)
+nll_str             = input.string("H4-4.L", "", inline = "L_NL", group = g_LABELS)
+
+nph_str             = input.string("H4-5.H", "Killzone 5 Labels", inline = "L_NP", group = g_LABELS)
+npl_str             = input.string("H4-5.L", "", inline = "L_NP", group = g_LABELS)
+
+kzp_style           = get_line_type(input.string(defval = 'Solid', title = "Pivot Style", options = ['Solid', 'Dotted', 'Dashed'], inline = "KZP", group = g_LABELS))
+kzp_width           = input.int(1, "", inline = "KZP", group = g_LABELS)
+kzm_style           = get_line_type(input.string(defval = 'Dotted', title = "Midpoint Style", options = ['Solid', 'Dotted', 'Dashed'], inline = "KZM", group = g_LABELS))
+kzm_width           = input.int(1, "", inline = "KZM", group = g_LABELS)
+
+// --- Killzone Range ---
+var g_RNG           = "Killzone Range"
+show_range          = input.bool(false, "Show Killzone Range", tooltip = "Show the most recent ranges of each selected killzone, from high to low", group = g_RNG)
+show_range_avg      = input.bool(true, "Show Average", tooltip = "Show the average range of each selected killzone", group = g_RNG)
+range_avg           = input.int(5, "Average Length", 0, tooltip = "This many previous sessions will be used to calculate the average. If there isn't enough data on the current chart, it will use as many sessions as possible", group = g_RNG)
+range_pos           = get_table_pos(input.string('Bottom Right', "Table Position", options = ['Bottom Center', 'Bottom Left', 'Bottom Right', 'Middle Center', 'Middle Left', 'Middle Right', 'Top Center', 'Top Left', 'Top Right'], group = g_RNG))
+range_size          = get_size(input.string('Normal', "Table Size", options = ['Auto', 'Tiny', 'Small', 'Normal', 'Large', 'Huge'], group = g_RNG))
+
+// --- Day - Week - Month ---
+var g_DWM           = "Day - Week - Month"
+sep_unlimited       = input.bool(false, "Unlimited", tooltip = "Unlimited will show as many of the selected lines as possible. Otherwise, the session drawing limit will be used", group = g_DWM)
+alert_HL            = input.bool(false, "Alert High/Low Break", tooltip = "Alert when any selected highs and lows are traded through. The desired timeframe's high/low option must be enabled at the time that an alert is created", group = g_DWM)
+
+show_d_open         = input.bool(false, "D Open", inline = "DO", group = g_DWM)
+dhl                 = input.bool(true, "High/Low", inline = "DO", tooltip = "", group = g_DWM)
+ds                  = input.bool(false, "Separators", inline = "DO", tooltip = "Mark where a new day begins", group = g_DWM)
+d_color             = input.color(color.blue, "", inline = "DO", group = g_DWM)
+
+show_w_open         = input.bool(false, "W Open", inline = "WO", group = g_DWM)
+whl                 = input.bool(false, "High/Low", inline = "WO", tooltip = "", group = g_DWM)
+ws                  = input.bool(false, "Separators", inline = "WO", tooltip = "Mark where a new week begins", group = g_DWM)
+w_color             = input.color(#089981, "", inline = "WO", group = g_DWM)
+
+show_m_open         = input.bool(false, "M Open", inline = "MO", group = g_DWM)
+mhl                 = input.bool(false, "High/Low", inline = "MO", tooltip = "", group = g_DWM)
+ms                  = input.bool(false, "Separators", inline = "MO", tooltip = "Mark where a new month begins", group = g_DWM)
+m_color             = input.color(color.red, "", inline = "MO", group = g_DWM)
+
+htf_style           = get_line_type(input.string(defval = 'Solid', title = "Style", options = ['Solid', 'Dotted', 'Dashed'], inline = "D0", group = g_DWM))
+htf_width           = input.int(1, "", inline = "D0", group = g_DWM)
+
+dow_labels          = input.bool(true, "Day of Week Labels", inline = "DOW", group = g_DWM)
+dow_yloc            = input.string('Bottom', "", options = ['Top', 'Bottom'], inline = "DOW", group = g_DWM)
+dow_xloc            = input.string('Midnight', "", options = ['Midnight', 'Midday'], inline = "DOW", group = g_DWM)
+dow_hide_wknd       = input.bool(true, "Hide Weekend Labels", group = g_DWM)
+
+// --- H4 Candle Closes (Opening Prices) ---
+var g_OPEN          = "H4 Candle Closes (Opening Prices)"
+open_unlimited      = input.bool(false, "Unlimited", tooltip = "Unlimited will show as many of the selected lines as possible. Otherwise, the session drawing limit will be used", group = g_OPEN)
+
+use_h1              = input.bool(false, "", inline = "H1", group = g_OPEN)
+h1_text             = input.string("H4-1 Open (03:00)", "", inline = "H1", group = g_OPEN)
+h1                  = input.session("0300-0301", "", inline = "H1", group = g_OPEN)
+h1_color            = input.color(color.black, "", inline = "H1", group = g_OPEN)
+
+use_h2              = input.bool(false, "", inline = "H2", group = g_OPEN)
+h2_text             = input.string("H4-1 Close (07:00)", "", inline = "H2", group = g_OPEN)
+h2                  = input.session("0700-0701", "", inline = "H2", group = g_OPEN)
+h2_color            = input.color(color.black, "", inline = "H2", group = g_OPEN)
+
+use_h3              = input.bool(false, "", inline = "H3", group = g_OPEN)
+h3_text             = input.string("H4-2 Close (11:00)", "", inline = "H3", group = g_OPEN)
+h3                  = input.session("1100-1101", "", inline = "H3", group = g_OPEN)
+h3_color            = input.color(color.black, "", inline = "H3", group = g_OPEN)
+
+use_h4              = input.bool(false, "", inline = "H4", group = g_OPEN)
+h4_text             = input.string("H4-3 Close (15:00)", "", inline = "H4", group = g_OPEN)
+h4                  = input.session("1500-1501", "", inline = "H4", group = g_OPEN)
+h4_color            = input.color(color.black, "", inline = "H4", group = g_OPEN)
+
+use_h5              = input.bool(false, "", inline = "H5", group = g_OPEN)
+h5_text             = input.string("H4-4 Close (19:00)", "", inline = "H5", group = g_OPEN)
+h5                  = input.session("1900-1901", "", inline = "H5", group = g_OPEN)
+h5_color            = input.color(color.black, "", inline = "H5", group = g_OPEN)
+
+use_h6              = input.bool(false, "", inline = "H6", group = g_OPEN)
+h6_text             = input.string("H4-5 Close (23:00)", "", inline = "H6", group = g_OPEN)
+h6                  = input.session("2300-2301", "", inline = "H6", group = g_OPEN)
+h6_color            = input.color(color.black, "", inline = "H6", group = g_OPEN)
+
+use_h7              = input.bool(false, "", inline = "H7", group = g_OPEN)
+h7_text             = input.string("NY Close (01:00)", "", inline = "H7", group = g_OPEN)
+h7                  = input.session("0100-0101", "", inline = "H7", group = g_OPEN)
+h7_color            = input.color(color.gray, "", inline = "H7", group = g_OPEN)
+
+use_h8              = input.bool(false, "", inline = "H8", group = g_OPEN)
+h8_text             = input.string("Dead Zone (02:00)", "", inline = "H8", group = g_OPEN)
+h8                  = input.session("0200-0201", "", inline = "H8", group = g_OPEN)
+h8_color            = input.color(color.gray, "", inline = "H8", group = g_OPEN)
+
+hz_style            = get_line_type(input.string(defval = 'Dotted', title = "Style", options = ['Solid', 'Dotted', 'Dashed'], inline = "H0", group = g_OPEN))
+hz_width            = input.int(1, "", inline = "H0", group = g_OPEN)
+
+// --- H1 Key Closes (Timestamps) ---
+var g_VERTICAL      = "H1 Key Closes (Timestamps)"
+v_unlimited         = input.bool(false, "Unlimited", tooltip = "Unlimited will show as many of the selected lines as possible. Otherwise, the session drawing limit will be used", group = g_VERTICAL)
+
+use_v1              = input.bool(false, "", inline = "V1", group = g_VERTICAL)
+v1                  = input.session("0300-0301", "", inline = "V1", group = g_VERTICAL)
+v1_color            = input.color(color.blue, "", inline = "V1", group = g_VERTICAL)
+
+use_v2              = input.bool(true, "", inline = "V2", group = g_VERTICAL)
+v2                  = input.session("0700-0701", "", inline = "V2", group = g_VERTICAL)
+v2_color            = input.color(color.red, "", inline = "V2", group = g_VERTICAL)
+
+use_v3              = input.bool(true, "", inline = "V3", group = g_VERTICAL)
+v3                  = input.session("1000-1001", "", inline = "V3", group = g_VERTICAL)
+v3_color            = input.color(color.orange, "", inline = "V3", group = g_VERTICAL)
+
+use_v4              = input.bool(true, "", inline = "V4", group = g_VERTICAL)
+v4                  = input.session("1600-1601", "", inline = "V4", group = g_VERTICAL)
+v4_color            = input.color(color.purple, "", inline = "V4", group = g_VERTICAL)
+
+vl_style            = get_line_type(input.string(defval = 'Dotted', title = "Style", options = ['Solid', 'Dotted', 'Dashed'], inline = "V0", group = g_VERTICAL))
+vl_width            = input.int(1, "", inline = "V0", group = g_VERTICAL)
+
+// --- Market Structure ---
+group_ms = "Market Structure"
+swingSize = input.int(15, 'Swing Length', group=group_ms, tooltip='The number of left and right bars checked when searching for a swing point.')
+bosConfType = input.string('Candle Close', 'BOS Confirmation', ['Candle Close', 'Wicks'], group=group_ms)
+choch = input.bool(true, 'Show CHoCH', group=group_ms)
+showSwing = input.bool(true, 'Show Swing Points', group=group_ms)
+showHalf = input.bool(false, 'Show 0.5 Retracement Level', group=group_ms)
+halfColor = input.color(color.rgb(41, 39, 176), 'Retracement Color', group=group_ms)
+halfStyle = input.string('Solid', 'Retracement Line Style', ['Solid', 'Dashed', 'Dotted'], group=group_ms)
+halfWidth = input.int(1, 'Retracement Width', minval=1, group=group_ms)
+bosColor = input.color(color.rgb(112, 114, 119), 'BOS Color', group=group_ms)
+bosStyle = input.string('Dashed', 'BOS Line Style', ['Solid', 'Dashed', 'Dotted'], group=group_ms)
+bosWidth = input.int(1, 'BOS Width', minval=1, group=group_ms)
+
+// --- RSI / Momentum --- (ALPHA GATE + MEAN REVERSION)
+group_rsi = "RSI Momentum"
+Len2 = input.int(10, "RSI Length", group=group_rsi)
+pmom = input.int(55, "BULLISH RSI Above", group=group_rsi)
+nmom = input.int(48, "BEARISH RSI Below", group=group_rsi)
+rsi_ob = input.int(85, "Exhaustion Overbought (Max Bull RSI)", group=group_rsi, tooltip="Prevents Bullish signals when price is already overextended to the upside.")
+rsi_os = input.int(20, "Exhaustion Oversold (Min Bear RSI)", group=group_rsi, tooltip="Prevents Bearish signals when price is already overextended to the downside.")
+sustain_momentum = input.bool(true, "Sustain Momentum on Levels", group=group_rsi)
+rsi_ema_len = input.int(3, "RSI Momentum EMA Length", group=group_rsi)
+use_m5_confirm = input.bool(true, "Confirm Smart Signals with M5 RSI/Momentum", group=group_rsi)
+use_rsi_gate = input.bool(true, "Require RSI Momentum Alignment for Entry", tooltip="Gates entries: Blocks trades if RSI Momentum is opposing the trail direction.", group=group_rsi)
+
+// --- Visuals ---
+group_visual = "Visuals"
+showlabels_rsi = input(true, "Show RSI Momentum Labels", group=group_visual)
+p = input.color(color.rgb(76, 175, 79, 62), "Positive RSI Color", group=group_visual)
+n = input.color(color.rgb(255, 82, 82, 66), "Negative RSI Color", group=group_visual)
+filleshow = input(true, "Show RSI Highlighter", group=group_visual)
+bull = input.color(color.rgb(76, 175, 79, 62), "Bull Fill", group=group_visual)
+bear = input.color(color.rgb(255, 82, 82, 66), "Bear Fill", group=group_visual)
+showSmartSignals = input(true, "Show Smart Bull/Bear Signals", group=group_visual)
+
+// --- EMA Crossover ---
+ema_group = "EMA Crossover (21/55)"
+ema_fast = input.int(21, "Fast EMA", group=ema_group)
+ema_slow = input.int(55, "Slow EMA", group=ema_group)
+show_emas = input.bool(true, "Show EMAs", group=ema_group)
+
+// --- Trend Truth (Renamed from AI) ---
+group_truth = "Trend Truth Enhancement"
+showTruthTrend = input.bool(true, title="Show Trend Truth", group=group_truth)
+
+// --- Smart PSAR Filter --- (NEW ADDITION)
+group_psar = "Smart PSAR Filter"
+use_psar_filter = input.bool(true,  "Require PSAR Alignment for Entry", tooltip="Gates entries: Blocks trades if MTF PSAR is opposing the trail direction.", group=group_psar)
+use_psar_trend_gate = input.bool(true, "Gate PSAR Visuals with Liquidity Trail", tooltip="If enabled, PSAR dots, sweeps, and warnings will turn Gray and be suppressed when they oppose the macro Liquidity Trail trend.", group=group_psar)
+show_psar_sweeps = input.bool(false, "Show Sweep Labels", tooltip="Toggle the yellow PSAR Liquidity Sweep labels on or off.", group=group_psar)
+psar_start     = input.float(0.02, "SAR Start", step=0.01, group=group_psar)
+psar_inc       = input.float(0.02, "SAR Increment", step=0.01, group=group_psar)
+psar_max       = input.float(0.2,  "SAR Maximum", step=0.01, group=group_psar)
+psar_htf       = input.timeframe("5", "PSAR MTF Alignment (TF)", tooltip="Multi-timeframe PSAR alignment. Default 5m for 1m chart execution.", group=group_psar)
+psar_atrLen    = input.int(14,     "PSAR Momentum ATR Length", minval=1, group=group_psar)
+psar_sweepLB   = input.int(5,      "PSAR Sweep Lookback", minval=2, maxval=20, group=group_psar)
+psar_decayMax  = input.int(50,     "PSAR Neon Decay (bars)", minval=10, maxval=500, group=group_psar)
+
+// --- Liquidity Trail --- (ALPHA TRAIL ENGINE)
+group_trail = "Liquidity Trail"
+use_alpha_gate   = input.bool(false,  "Enable Alpha Gate (Macro Trend)", tooltip="Blocks trail from flipping against the dominant EMA 21/55 trend. Forces trail to hold flat during pullbacks.", group=group_trail)
+ma_len          = input.int(13,     "MA Length",             minval=1,   maxval=200,            group=group_trail)
+atr_len         = input.int(14,     "ATR Length",            minval=1,   maxval=100,            group=group_trail)
+atr_mult        = input.float(2.0,  "Trail Distance (ATR)",  minval=0.5, maxval=8.0, step=0.25, group=group_trail)
+
+// --- Position Tool --- (ALPHA EXECUTION GATE)
+group_pos = "Position Tool"
+show_pos_tool   = input.bool(true,  "Show Position Tool",   group=group_pos)
+entry_mode      = input.string("Signal Change", "Entry Mode", options=["Signal Change", "Trail Retest"], group=group_pos)
+pin_to_current  = input.bool(false, "Pin to Current Bar",   group=group_pos)
+tp1_r           = input.float(1.0,  "TP1 (R)",              minval=0.1, maxval=20.0, step=0.1, group=group_pos)
+tp2_r           = input.float(1.5,  "TP2 (R)",              minval=0.1, maxval=20.0, step=0.1, group=group_pos)
+tp3_r           = input.float(2.0,  "TP3 (R)",              minval=0.1, maxval=20.0, step=0.1, group=group_pos)
+pos_extend      = input.int(30,     "Extend Bars",          minval=10,  maxval=300,            group=group_pos)
+show_entry_lbls = input.bool(true,  "Show Buy/Sell Entry Labels", tooltip="Toggles simple BUY/SELL labels on entry triggers.", group=group_pos)
+
+// --- Appearance ---
+group_appear    = "Appearance"
+lbl_size_str    = input.string("Small", "Label Size",        options=["Tiny","Small","Normal","Large"], group=group_appear)
+bull_color      = input.color(#00ff00, "Bull",               group=group_appear, inline="c")
+bear_color      = input.color(#ff0000, "Bear",               group=group_appear, inline="c")
+recolor_candles = input.bool(true, "Recolor Candles by Trail", group=group_appear)
+
+// --- Alerts ---
+awaitBarConfirmation = input.bool(true, title="Await Bar Confirmation", group="Alerts")
+
+// ============================================
+// 3. HELPERS
+// ============================================
+lineStyle(x) =>
+    switch x
+        'Solid' => line.style_solid
+        'Dashed' => line.style_dashed
+        'Dotted' => line.style_dotted
+
+get_lbl_size(string s) =>
+    switch s
+        "Tiny"   => size.tiny
+        "Small"  => size.small
+        "Normal" => size.normal
+        "Large"  => size.large
+        =>          size.small
+
+lbl_sz = get_lbl_size(lbl_size_str)
+
+const color CLEAR = color.rgb(0,0,0,100)
+const color textColor = color.white
+const color longColor = color.green
+const color shortColor = color.red
+
+// ============================================
+// 4. KILLZONE TYPES & INIT
+// ============================================
+type kz
+    string _title
+    array<box> _box
+    array<line> _hi_line
+    array<line> _md_line
+    array<line> _lo_line
+    array<label> _hi_label
+    array<label> _lo_label
+    array<bool> _hi_valid
+    array<bool> _md_valid
+    array<bool> _lo_valid
+    array<float> _range_store
+    float _range_current
+
+type hz
+    array<line> LN
+    array<label> LB
+    array<bool> CO
+
+type dwm_hl
+    array<line> hi_line
+    array<line> lo_line
+    array<label> hi_label
+    array<label> lo_label
+    bool hit_high = false
+    bool hit_low = false
+
+type dwm_info
+    string tf
+    float o = na
+    float h = na
+    float l = na
+    float ph = na
+    float pl = na
+
+type lines_helper
+    hz _hz
+    string h
+    string h_text
+    color h_color
+
+initLines() => 
+    array<lines_helper> res = array.new<lines_helper>()
+    if use_h1
+        res.push(lines_helper.new(hz.new(array.new_line(), array.new_label(), array.new_bool()), h1, h1_text, h1_color))
+    if use_h2
+        res.push(lines_helper.new(hz.new(array.new_line(), array.new_label(), array.new_bool()), h2, h2_text, h2_color))
+    if use_h3
+        res.push(lines_helper.new(hz.new(array.new_line(), array.new_label(), array.new_bool()), h3, h3_text, h3_color))
+    if use_h4
+        res.push(lines_helper.new(hz.new(array.new_line(), array.new_label(), array.new_bool()), h4, h4_text, h4_color))
+    if use_h5
+        res.push(lines_helper.new(hz.new(array.new_line(), array.new_label(), array.new_bool()), h5, h5_text, h5_color))
+    if use_h6
+        res.push(lines_helper.new(hz.new(array.new_line(), array.new_label(), array.new_bool()), h6, h6_text, h6_color))
+    if use_h7
+        res.push(lines_helper.new(hz.new(array.new_line(), array.new_label(), array.new_bool()), h7, h7_text, h7_color))
+    if use_h8
+        res.push(lines_helper.new(hz.new(array.new_line(), array.new_label(), array.new_bool()), h8, h8_text, h8_color))
+    res
+
+var array<lines_helper> lines = initLines()
+
+type kz_helper
+    kz _kz
+    string session
+    color c
+    string box_txt
+    string hi_txt
+    string lo_txt
+
+initKZ() => 
+    array<kz_helper> res = array.new<kz_helper>()
+    if use_asia
+        res.push(kz_helper.new(
+             kz.new(as_txt, array.new_box(), array.new_line(), array.new_line(), array.new_line(), array.new_label(), array.new_label(), array.new_bool(), array.new_bool(), array.new_bool(), array.new_float()),
+             asia, as_color, as_txt, ash_str, asl_str
+         ))
+    if use_london
+        res.push(kz_helper.new(
+             kz.new(lo_txt, array.new_box(), array.new_line(), array.new_line(), array.new_line(), array.new_label(), array.new_label(), array.new_bool(), array.new_bool(), array.new_bool(), array.new_float()),
+             london, lo_color, lo_txt, loh_str, lol_str
+         ))
+    if use_nyam
+        res.push(kz_helper.new(
+             kz.new(na_txt, array.new_box(), array.new_line(), array.new_line(), array.new_line(), array.new_label(), array.new_label(), array.new_bool(), array.new_bool(), array.new_bool(), array.new_float()),
+             nyam, na_color, na_txt, nah_str, nal_str
+         ))
+    if use_nylu
+        res.push(kz_helper.new(
+             kz.new(nl_txt, array.new_box(), array.new_line(), array.new_line(), array.new_line(), array.new_label(), array.new_label(), array.new_bool(), array.new_bool(), array.new_bool(), array.new_float()),
+             nylu, nl_color, nl_txt, nlh_str, nll_str
+         ))
+    if use_nypm
+        res.push(kz_helper.new(
+             kz.new(np_txt, array.new_box(), array.new_line(), array.new_line(), array.new_line(), array.new_label(), array.new_label(), array.new_bool(), array.new_bool(), array.new_bool(), array.new_float()),
+             nypm, np_color, np_txt, nph_str, npl_str
+         ))
+    res
+
+var array<kz_helper> _kz = initKZ()
+
+var d_hl = dwm_hl.new(array.new_line(), array.new_line(), array.new_label(), array.new_label())
+var w_hl = dwm_hl.new(array.new_line(), array.new_line(), array.new_label(), array.new_label())
+var m_hl = dwm_hl.new(array.new_line(), array.new_line(), array.new_label(), array.new_label())
+
+var d_info = dwm_info.new("D")
+var w_info = dwm_info.new("W")
+var m_info = dwm_info.new("M")
+
+t_co = not na(time("", cutoff, gmt_tz))
+
+type ts_helper
+    string session
+    array<line> lines
+    color c
+
+initTS() =>
+    array<ts_helper> res = array.new<ts_helper>()
+    if use_v1
+        res.push(ts_helper.new(v1, array.new_line(), v1_color))
+    if use_v2
+        res.push(ts_helper.new(v2, array.new_line(), v2_color))
+    if use_v3
+        res.push(ts_helper.new(v3, array.new_line(), v3_color))
+    if use_v4
+        res.push(ts_helper.new(v4, array.new_line(), v4_color))
+    res
+
+var array<ts_helper> ts_data = initTS()
+
+var d_sep_line = array.new_line()
+var w_sep_line = array.new_line()
+var m_sep_line = array.new_line()
+
+var d_line = array.new_line()
+var w_line = array.new_line()
+var m_line = array.new_line()
+
+var d_label = array.new_label()
+var w_label = array.new_label()
+var m_label = array.new_label()
+
+var transparent = #ffffff00
+var ext_current = ext_which == 'Most Recent'
+var ext_past = ext_pivots == 'Past Mitigation'
+
+// ============================================
+// 5. MARKET STRUCTURE VARIABLES
+// ============================================
+pivHi = ta.pivothigh(high, swingSize, swingSize)
+pivLo = ta.pivotlow(low, swingSize, swingSize)
+
+var float prevHigh = na
+var float prevLow = na
+var int prevHighIndex = na
+var int prevLowIndex = na
+var bool highActive = false
+var bool lowActive = false
+bool hh = false
+bool lh = false
+bool hl = false
+bool ll = false
+var int prevSwing = 0
+
+if not na(pivHi)
+    if na(prevHigh) or pivHi >= prevHigh
+        hh := true
+        prevSwing := 2
+    else
+        lh := true
+        prevSwing := 1
+    prevHigh := pivHi
+    highActive := true
+    prevHighIndex := bar_index - swingSize
+
+if not na(pivLo)
+    if na(prevLow) or pivLo >= prevLow
+        hl := true
+        prevSwing := -1
+    else
+        ll := true
+        prevSwing := -2
+    prevLow := pivLo
+    lowActive := true
+    prevLowIndex := bar_index - swingSize
+
+bool highBroken = false
+bool lowBroken = false
+var int prevBreakoutDir = 0
+float highSrc = bosConfType == 'Candle Close' ? close : high
+float lowSrc = bosConfType == 'Candle Close' ? close : low
+
+if highSrc > prevHigh and highActive
+    highBroken := true
+    highActive := false
+if lowSrc < prevLow and lowActive
+    lowBroken := true
+    lowActive := false
+
+// ============================================
+// 6. RSI MOMENTUM (1m + M5) -- WITH MEAN REVERSION
+// ============================================
+rsi = ta.rsi(close, Len2)
+rsi_ema_val = ta.ema(close, rsi_ema_len)
+rsi_ema_chng = ta.change(rsi_ema_val)
+
+p_mom = rsi[1] < pmom and rsi > pmom and rsi > nmom and rsi < rsi_ob and rsi_ema_chng > 0
+n_mom = rsi < nmom and rsi > rsi_os and rsi_ema_chng < 0
+
+var bool positive = false
+var bool negative = false
+
+p_sustain = sustain_momentum and positive[1] and rsi > pmom and rsi < rsi_ob and rsi_ema_chng > 0
+n_sustain = sustain_momentum and negative[1] and rsi < nmom and rsi > rsi_os and rsi_ema_chng < 0
+
+if p_mom or p_sustain
+    positive := true
+    negative := false
+if n_mom or n_sustain
+    positive := false
+    negative := true
+
+// M5 confirmation
+rsi_m5 = request.security(syminfo.tickerid, "5", ta.rsi(close, Len2))
+ema_m5 = request.security(syminfo.tickerid, "5", ta.ema(close, rsi_ema_len))
+m5_bull_mom = ta.change(ema_m5) > 0
+m5_bear_mom = ta.change(ema_m5) < 0
+
+p_mom_m5 = rsi_m5[1] < pmom and rsi_m5 > pmom and rsi_m5 > nmom and rsi_m5 < rsi_ob and m5_bull_mom
+n_mom_m5 = rsi_m5 < nmom and rsi_m5 > rsi_os and m5_bear_mom
+
+var bool positive_m5 = false
+var bool negative_m5 = false
+if p_mom_m5
+    positive_m5 := true
+    negative_m5 := false
+if n_mom_m5
+    positive_m5 := false
+    negative_m5 := true
+
+pcondition = positive and not positive[1] and (positive_m5 or (rsi_m5 > nmom and m5_bull_mom))
+ncondition2 = negative and not negative[1] and (negative_m5 or (rsi_m5 < pmom and m5_bear_mom))
+
+smartBull = rsi > pmom and rsi < rsi_ob and rsi_ema_chng > 0 and (not use_m5_confirm or (rsi_m5 > pmom and rsi_m5 < rsi_ob and m5_bull_mom))
+smartBear = rsi < nmom and rsi > rsi_os and rsi_ema_chng < 0 and (not use_m5_confirm or (rsi_m5 < nmom and rsi_m5 > rsi_os and m5_bear_mom))
+newSmartBull = smartBull and not smartBull[1]
+newSmartBear = smartBear and not smartBear[1]
+
+// ============================================
+// 7. EMAs
+// ============================================
+ema21 = ta.ema(close, ema_fast)
+ema55 = ta.ema(close, ema_slow)
+bullish_cross = ema21 > ema55
+
+// ============================================
+// 8. TREND TRUTH (Renamed from AI)
+// ============================================
+var string truthTrend = "Neutral ⚖️"
+var color truthColor = color.gray
+rsi_smooth = ta.ema(rsi_m5, 5)
+price_momentum = ta.change(close, 5)
+trend_score = rsi_smooth > 50 ? 1 : rsi_smooth < 50 ? -1 : 0
+trend_score := trend_score + (price_momentum > 0 ? 1 : price_momentum < 0 ? -1 : 0)
+trend_score := trend_score + (bullish_cross ? 1 : -1)
+
+if showTruthTrend
+    if trend_score >= 2
+        truthTrend := "Bullish 📈"
+        truthColor := color.green
+    else if trend_score <= -2
+        truthTrend := "Bearish 📉"
+        truthColor := color.red
+    else
+        truthTrend := "Neutral ⚖️"
+        truthColor := color.gray
+
+// ============================================
+// 9. SMART PSAR FILTER (MTF Gating)
+// ============================================
+rawSar = ta.sar(psar_start, psar_inc, psar_max)
+isPsarBull = close > rawSar
+psarDir = isPsarBull ? 1 : -1
+psarFlip = psarDir != psarDir[1]
+
+// MTF Alignment
+htf_sar_val = request.security(syminfo.tickerid, psar_htf, ta.sar(psar_start, psar_inc, psar_max))
+htf_close = request.security(syminfo.tickerid, psar_htf, close)
+htfPsarBull = htf_close > htf_sar_val
+psarMtfAligned = isPsarBull == htfPsarBull
+
+// Momentum Score
+psarAtrVal = ta.atr(psar_atrLen)
+psarDist = math.abs(close - rawSar)
+psarMomScore = psarAtrVal > 0.0 ? psarDist / psarAtrVal : 0.0
+
+// Sweep Detection
+psarCurLo = ta.lowest(low, psar_sweepLB)
+psarCurHi = ta.highest(high, psar_sweepLB)
+psarPriorLo = ta.lowest(low[psar_sweepLB], psar_sweepLB)
+psarPriorHi = ta.highest(high[psar_sweepLB], psar_sweepLB)
+psarIsSweep = (psarFlip and isPsarBull and psarCurLo < psarPriorLo) or (psarFlip and not isPsarBull and psarCurHi > psarPriorHi)
+
+// Early Warning
+var float psarEntryRiskDist = na
+if psarFlip
+    psarEntryRiskDist := math.abs(close - rawSar)
+psarEarlyWarn = not na(psarEntryRiskDist) and psarEntryRiskDist > 0.0 and psarDist < psarEntryRiskDist * 0.10
+
+// Neon Decay Visuals
+var int psarTrendAge = 0
+psarTrendAge := psarFlip ? 1 : psarTrendAge + 1
+int psarDecTrans = math.min(math.round(psarTrendAge * 85.0 / psar_decayMax), 85)
+color psar_cCore = isPsarBull ? color.new(color.rgb(0, 191, 255, 0), psarDecTrans) : color.new(color.rgb(255, 102, 0, 0), psarDecTrans)
+color psar_cInner = isPsarBull ? color.new(color.rgb(0, 191, 255, 60), math.min(psarDecTrans + 15, 90)) : color.new(color.rgb(255, 102, 0, 60), math.min(psarDecTrans + 15, 90))
+color psar_cOuter = isPsarBull ? color.new(color.rgb(0, 191, 255, 60), math.min(psarDecTrans + 55, 95)) : color.new(color.rgb(255, 102, 0, 60), math.min(psarDecTrans + 55, 95))
+
+// ============================================
+// 10. LIQUIDITY TRAIL ENGINE (ALPHA GATED LOGIC)
+// ============================================
+float trail_atr = ta.atr(atr_len)
+float trail_ma  = ta.ema(close, ma_len) // With ma_len=21, this mirrors ema21
+
+float raw_up = trail_ma - trail_atr * atr_mult
+float raw_dn = trail_ma + trail_atr * atr_mult
+
+var int   trend = 1
+var float trail = na
+
+if na(trail)
+    trail := close > trail_ma ? raw_up : raw_dn
+    trend := close > trail_ma ? 1 : -1
+
+// --- ALPHA GATE LOGIC (MACRO DOMINANT TREND) ---
+bool alpha_bull_allowed = not use_alpha_gate or (ema21 > ema55)
+bool alpha_bear_allowed = not use_alpha_gate or (ema21 < ema55)
+
+if trend == 1
+    if close < trail and alpha_bear_allowed
+        trend := -1
+        trail := raw_dn
+    else if close < trail and not alpha_bear_allowed
+        trail := nz(trail[1]) // Hold flat: Macro Bull blocks Bear flip
+    else
+        trail := math.max(raw_up, nz(trail[1])) // Ratchet up normally
+else
+    if close > trail and alpha_bull_allowed
+        trend := 1
+        trail := raw_up
+    else if close > trail and not alpha_bull_allowed
+        trail := nz(trail[1]) // Hold flat: Macro Bear blocks Bull flip
+    else
+        trail := math.min(raw_dn, nz(trail[1])) // Ratchet down normally
+
+bool flip_bull = trend == 1  and trend[1] == -1
+bool flip_bear = trend == -1 and trend[1] == 1
+
+color trend_col = trend == 1 ? bull_color : bear_color
+
+// ============================================
+// 11. POSITION TOOL (WITH PSAR + RSI GATING)
+// ============================================
+type PositionTool
+    float entry
+    float sl
+    float tp1
+    float tp2
+    float tp3
+    bool  is_bull
+    int   anchor_bar
+    line  entry_line
+    line  sl_line
+    line  tp1_line
+    line  tp2_line
+    line  tp3_line
+    label entry_lbl
+    label sl_lbl
+    label tp1_lbl
+    label tp2_lbl
+    label tp3_lbl
+    box   risk_box
+
+var PositionTool active_pos = na
+
+var int   pending_dir   = 0
+var float pending_trail = na
+
+if flip_bull
+    pending_dir   := 1
+    pending_trail := trail
+if flip_bear
+    pending_dir   := -1
+    pending_trail := trail
+
+bool retest_bull_entry = entry_mode == "Trail Retest" and pending_dir == 1  and low  <= pending_trail and close >= pending_trail
+bool retest_bear_entry = entry_mode == "Trail Retest" and pending_dir == -1 and high >= pending_trail and close <= pending_trail
+
+bool sig_bull_entry = entry_mode == "Signal Change" and flip_bull
+bool sig_bear_entry = entry_mode == "Signal Change" and flip_bear
+
+// GATING LOGIC: PSAR + RSI MOMENTUM
+bool psar_bull_clear = not use_psar_filter or isPsarBull
+bool psar_bear_clear = not use_psar_filter or not isPsarBull
+
+bool rsi_bull_clear  = not use_rsi_gate or positive
+bool rsi_bear_clear  = not use_rsi_gate or negative
+
+bool do_bull_entry = (sig_bull_entry or retest_bull_entry) and psar_bull_clear and rsi_bull_clear
+bool do_bear_entry = (sig_bear_entry or retest_bear_entry) and psar_bear_clear and rsi_bear_clear
+
+if retest_bull_entry or retest_bear_entry
+    pending_dir := 0
+
+delete_position(PositionTool pos) =>
+    line.delete(pos.entry_line)
+    line.delete(pos.sl_line)
+    line.delete(pos.tp1_line)
+    line.delete(pos.tp2_line)
+    line.delete(pos.tp3_line)
+    label.delete(pos.entry_lbl)
+    label.delete(pos.sl_lbl)
+    label.delete(pos.tp1_lbl)
+    label.delete(pos.tp2_lbl)
+    label.delete(pos.tp3_lbl)
+    box.delete(pos.risk_box)
+
+if show_pos_tool and (do_bull_entry or do_bear_entry)
+    if not na(active_pos)
+        delete_position(active_pos)
+
+    bool  bull_e   = do_bull_entry
+    float entry_px = close
+    float sl_px    = trail
+    float risk     = math.abs(entry_px - sl_px)
+    int   x1       = bar_index
+    int   x2       = bar_index + pos_extend
+
+    float tp1_px = bull_e ? entry_px + risk * tp1_r : entry_px - risk * tp1_r
+    float tp2_px = bull_e ? entry_px + risk * tp2_r : entry_px - risk * tp2_r
+    float tp3_px = bull_e ? entry_px + risk * tp3_r : entry_px - risk * tp3_r
+
+    color sl_c    = color.new(bear_color, 0)
+    color entry_c = color.new(color.white, 20)
+    color tp1_c   = color.new(bull_color, 40)
+    color tp2_c   = color.new(bull_color, 20)
+    color tp3_c   = color.new(bull_color, 0)
+    color risk_bg = bull_e ? color.new(bear_color, 90) : color.new(bull_color, 90)
+
+    box risk_b = box.new(x1, entry_px, x2, sl_px,
+         bgcolor=risk_bg, border_color=color.new(color.white, 100), border_width=0)
+
+    line e_ln  = line.new(x1, entry_px, x2, entry_px, color=entry_c, width=1, style=line.style_dashed)
+    line sl_ln = line.new(x1, sl_px,    x2, sl_px,    color=sl_c,    width=2, style=line.style_solid)
+    line t1_ln = line.new(x1, tp1_px,   x2, tp1_px,   color=tp1_c,   width=1, style=line.style_dashed)
+    line t2_ln = line.new(x1, tp2_px,   x2, tp2_px,   color=tp2_c,   width=1, style=line.style_dashed)
+    line t3_ln = line.new(x1, tp3_px,   x2, tp3_px,   color=tp3_c,   width=2, style=line.style_solid)
+
+    label e_lbl  = label.new(x2, entry_px,
+         "ENTRY  " + str.tostring(entry_px, "#.####"),
+         color=color.new(color.black,100), textcolor=entry_c, style=label.style_label_left, size=lbl_sz)
+    label sl_lbl = label.new(x2, sl_px,
+         "SL  " + str.tostring(sl_px, "#.####"),
+         color=color.new(color.black,100), textcolor=sl_c, style=label.style_label_left, size=lbl_sz)
+    label t1_lbl = label.new(x2, tp1_px,
+         "TP1  " + str.tostring(tp1_r, "#.#") + "R   " + str.tostring(tp1_px, "#.####"),
+         color=color.new(color.black,100), textcolor=tp1_c, style=label.style_label_left, size=lbl_sz)
+    label t2_lbl = label.new(x2, tp2_px,
+         "TP2  " + str.tostring(tp2_r, "#.#") + "R   " + str.tostring(tp2_px, "#.####"),
+         color=color.new(color.black,100), textcolor=tp2_c, style=label.style_label_left, size=lbl_sz)
+    label t3_lbl = label.new(x2, tp3_px,
+         "TP3  " + str.tostring(tp3_r, "#.#") + "R   " + str.tostring(tp3_px, "#.####"),
+         color=color.new(color.black,100), textcolor=tp3_c, style=label.style_label_left, size=lbl_sz)
+
+    active_pos := PositionTool.new(
+         entry_px, sl_px, tp1_px, tp2_px, tp3_px, bull_e, x1,
+         e_ln, sl_ln, t1_ln, t2_ln, t3_ln,
+         e_lbl, sl_lbl, t1_lbl, t2_lbl, t3_lbl,
+         risk_b)
+
+if show_pos_tool and not na(active_pos)
+    int x2b = bar_index + pos_extend
+    int x1b = pin_to_current ? bar_index : active_pos.anchor_bar
+
+    active_pos.entry_line.set_x1(x1b)
+    active_pos.entry_line.set_x2(x2b)
+    active_pos.sl_line.set_x1(x1b)
+    active_pos.sl_line.set_x2(x2b)
+    active_pos.tp1_line.set_x1(x1b)
+    active_pos.tp1_line.set_x2(x2b)
+    active_pos.tp2_line.set_x1(x1b)
+    active_pos.tp2_line.set_x2(x2b)
+    active_pos.tp3_line.set_x1(x1b)
+    active_pos.tp3_line.set_x2(x2b)
+    active_pos.risk_box.set_left(x1b)
+    active_pos.risk_box.set_right(x2b)
+    active_pos.entry_lbl.set_x(x2b)
+    active_pos.sl_lbl.set_x(x2b)
+    active_pos.tp1_lbl.set_x(x2b)
+    active_pos.tp2_lbl.set_x(x2b)
+    active_pos.tp3_lbl.set_x(x2b)
+
+// ============================================
+// 12. KILLZONE FUNCTIONS & LOGIC
+// ============================================
+update_dwm_info(dwm_info info) =>
+    if timeframe.change(info.tf)
+        info.ph := info.h
+        info.pl := info.l
+        info.o := open
+        info.h := high
+        info.l := low
+    else
+        info.h := math.max(high, info.h)
+        info.l := math.min(low, info.l)
+
+if dhl or show_d_open
+    update_dwm_info(d_info)
+if whl or show_w_open
+    update_dwm_info(w_info)
+if mhl or show_m_open
+    update_dwm_info(m_info)
+
+get_box_color(color c) =>
+    color.new(c, box_transparency)
+
+get_text_color(color c) =>
+    color.new(c, text_transparency)
+
+dwm_sep(string tf, bool use, array<line> arr, color col) =>
+    if use
+        if timeframe.change(tf)
+            arr.unshift(line.new(bar_index, high * 1.0001, bar_index, low, style = htf_style, width = htf_width, extend = extend.both, color = col))
+            if not sep_unlimited and arr.size() > max_days
+                arr.pop().delete()
+
+dwm_open(string tf, bool use, array<line> lns, array<label> lbls, dwm_info info, color col) =>
+    if use
+        if lns.size() > 0
+            lns.get(0).set_x2(time)
+            lbls.get(0).set_x(time)
+        if timeframe.change(tf)
+            lns.unshift(line.new(time, info.o, time, info.o, xloc = xloc.bar_time, style = htf_style, width = htf_width, color = col))
+            lbls.unshift(label.new(time, info.o, tf + " OPEN", xloc = xloc.bar_time, style = label.style_label_left, color = transparent, textcolor = txt_color, size = kz_lbl_size))
+            if not sep_unlimited and lns.size() > max_days
+                lns.pop().delete()
+                lbls.pop().delete()
+
+dwm_hl(string tf, bool use, dwm_hl hl, dwm_info info, color col) =>
+    if use
+        if hl.hi_line.size() > 0
+            hl.hi_line.get(0).set_x2(time)
+            hl.lo_line.get(0).set_x2(time)
+            hl.hi_label.get(0).set_x(time)
+            hl.lo_label.get(0).set_x(time)
+        if timeframe.change(tf)
+            hl.hi_line.unshift(line.new(time, info.ph, time, info.ph, xloc = xloc.bar_time, style = htf_style, width = htf_width, color = col))
+            hl.lo_line.unshift(line.new(time, info.pl, time, info.pl, xloc = xloc.bar_time, style = htf_style, width = htf_width, color = col))
+            hl.hi_label.unshift(label.new(time, info.ph, "P" + tf + "H", xloc = xloc.bar_time, style = label.style_label_left, color = transparent, textcolor = txt_color, size = kz_lbl_size))
+            hl.lo_label.unshift(label.new(time, info.pl, "P" + tf + "L", xloc = xloc.bar_time, style = label.style_label_left, color = transparent, textcolor = txt_color, size = kz_lbl_size))
+            hl.hit_high := false
+            hl.hit_low := false
+            if not sep_unlimited and hl.hi_line.size() > max_days
+                hl.hi_line.pop().delete()
+                hl.lo_line.pop().delete()
+                hl.hi_label.pop().delete()
+                hl.lo_label.pop().delete()
+        if hl.hi_line.size() > 0 and alert_HL
+            if not hl.hit_high and high > hl.hi_line.get(0).get_y1()
+                hl.hit_high := true
+                alert(str.format("Hit P{0}H", tf))
+            if not hl.hit_low and low < hl.lo_line.get(0).get_y1()
+                hl.hit_low := true
+                alert(str.format("Hit P{0}L", tf))
+
+dwm() =>
+    if tf_limit_is_equal_or_more_chart_tf
+        dwm_sep("D", ds, d_sep_line, d_color)
+        dwm_sep("W", ws, w_sep_line, w_color)
+        dwm_sep("M", ms, m_sep_line, m_color)
+        dwm_open("D", show_d_open, d_line, d_label, d_info, d_color)
+        dwm_open("W", show_w_open, w_line, w_label, w_info, w_color)
+        dwm_open("M", show_m_open, m_line, m_label, m_info, m_color)
+        dwm_hl("D", dhl, d_hl, d_info, d_color)
+        dwm_hl("W", whl, w_hl, w_info, w_color)
+        dwm_hl("M", mhl, m_hl, m_info, m_color)
+
+method vline(ts_helper this) =>
+    bool t = not na(time("", this.session, gmt_tz))
+    bool t_prev = not na(time("", this.session, gmt_tz, bars_back = 1))
+    array<line> arr = this.lines
+    color col = this.c
+    if t and not t_prev
+        arr.unshift(line.new(bar_index, high * 1.0001, bar_index, low, style = vl_style, width = vl_width, extend = extend.both, color = col))
+    if not v_unlimited
+        if arr.size() > max_days
+            arr.pop().delete()
+
+vlines() =>
+    if tf_limit_is_equal_or_more_chart_tf
+        for [_, value] in ts_data
+            vline(value)
+
+method hz_line(lines_helper this) =>
+    bool t = not na(time("", this.h, gmt_tz))
+    bool t_prev = not na(time("", this.h, gmt_tz, bars_back = 1))
+    hz hzObj = this._hz
+    string txt = this.h_text
+    color col = this.h_color
+
+    if t and not t_prev
+        hzObj.LN.unshift(line.new(bar_index, open, bar_index, open, style = hz_style, width = hz_width, color = col))
+        hzObj.LB.unshift(label.new(bar_index, open, txt, style = label.style_label_left, color = transparent, textcolor = txt_color, size = kz_lbl_size))
+        array.unshift(hzObj.CO, false)
+        if not open_unlimited and hzObj.LN.size() > max_days
+            hzObj.LN.pop().delete()
+            hzObj.LB.pop().delete()
+            hzObj.CO.pop()
+    if not t and hzObj.CO.size() > 0
+        if not hzObj.CO.get(0)
+            hzObj.LN.get(0).set_x2(bar_index)
+            hzObj.LB.get(0).set_x(bar_index)
+            if (use_cutoff ? t_co : false)
+                hzObj.CO.set(0, true)
+
+hz_lines() =>
+    if tf_limit_is_equal_or_more_chart_tf
+        for [_, value] in lines
+            hz_line(value)
+
+del_kz(kz kObj) =>
+    if kObj._box.size() > max_days
+        kObj._box.pop().delete()
+    if kObj._hi_line.size() > max_days
+        kObj._hi_line.pop().delete()
+        kObj._lo_line.pop().delete()
+        kObj._hi_valid.pop()
+        kObj._lo_valid.pop()
+        if show_midpoints
+            kObj._md_line.pop().delete()
+            kObj._md_valid.pop()
+    if kObj._hi_label.size() > max_days
+        kObj._hi_label.pop().delete()
+        kObj._lo_label.pop().delete()
+
+update_price_string(label L, float P) =>
+    S = L.get_text()
+    pre = str.substring(S, 0, str.pos(S, " ")) 
+    str.trim(pre)
+    L.set_text(str.format("{0} ({1})", pre, P))
+
+adjust_in_kz(kz kObj, bool t) =>
+    if t
+        kzBox0 = kObj._box.get(0)
+        kzBox0.set_right(time)
+        newTop = math.max(kzBox0.get_top(), high)
+        kzBox0.set_top(newTop)
+        newBottom = math.min(kzBox0.get_bottom(), low)
+        kzBox0.set_bottom(newBottom)
+        kObj._range_current := newTop - newBottom
+        if show_pivots and kObj._hi_line.size() > 0
+            kzHiLine0 = kObj._hi_line.get(0)
+            kzHiLine0.set_x2(time)
+            if high > kzHiLine0.get_y1()
+                kzHiLine0.set_xy1(time, high)
+                kzHiLine0.set_xy2(time, high)
+            kzLoLine0 = kObj._lo_line.get(0)
+            kzLoLine0.set_x2(time)
+            if low < kzLoLine0.get_y1()
+                kzLoLine0.set_xy1(time, low)
+                kzLoLine0.set_xy2(time, low)
+            if show_midpoints
+                kzMidLine0 = kObj._md_line.get(0)
+                kzMidLine0.set_x2(time)
+                kzMidLine0.set_xy1(time, math.avg(kzHiLine0.get_y2(), kzLoLine0.get_y2()))
+                kzMidLine0.set_xy2(time, math.avg(kzHiLine0.get_y2(), kzLoLine0.get_y2()))
+        if show_labels and kObj._hi_label.size() > 0
+            if label_right
+                kObj._hi_label.get(0).set_x(time)
+                kObj._lo_label.get(0).set_x(time)
+            if high > kObj._hi_label.get(0).get_y()
+                kObj._hi_label.get(0).set_xy(time, high)
+                if label_price
+                    update_price_string(kObj._hi_label.get(0), high)
+            if low < kObj._lo_label.get(0).get_y()
+                kObj._lo_label.get(0).set_xy(time, low)
+                if label_price
+                    update_price_string(kObj._lo_label.get(0), low)
+
+adjust_out_kz(kz kObj, bool t, bool t_prev) =>
+    boxCount = kObj._box.size()
+    if not t and boxCount > 0
+        if t_prev
+            array.unshift(kObj._range_store, kObj._range_current)
+            if kObj._range_store.size() > range_avg
+                kObj._range_store.pop()
+    if show_pivots and boxCount > 0
+        for i = 0 to boxCount - 1 by 1
+            if not ext_current or i == 0
+                kzHiValid = kObj._hi_valid.get(i)
+                if ext_past or kzHiValid
+                    kObj._hi_line.get(i).set_x2(time)
+                    if show_labels and label_right
+                        kObj._hi_label.get(i).set_x(time)
+                if kzHiValid and high > kObj._hi_line.get(i).get_y1()
+                    if use_alerts and i == 0
+                        alert('Broke ' + kObj._title + ' High', alert.freq_once_per_bar)
+                    kObj._hi_valid.set(i, false)
+                    if show_labels and label_right
+                        kObj._hi_label.get(i).set_style(label.style_label_down)
+                else if use_cutoff ? t_co : false
+                    kObj._hi_valid.set(i, false)
+                kzLoValid = kObj._lo_valid.get(i)
+                if ext_past or kzLoValid
+                    kObj._lo_line.get(i).set_x2(time)
+                    if show_labels and label_right
+                        kObj._lo_label.get(i).set_x(time)
+                if kzLoValid and low < kObj._lo_line.get(i).get_y1()
+                    if use_alerts and i == 0
+                        alert("Broke " + kObj._title + " Low", alert.freq_once_per_bar)
+                    kObj._lo_valid.set(i, false)
+                    if show_labels and label_right
+                        kObj._lo_label.get(i).set_style(label.style_label_up)
+                else if use_cutoff ? t_co : false
+                    kObj._lo_valid.set(i, false)
+                if show_midpoints and not t
+                    if stop_midpoints ? kObj._md_valid.get(i) : true
+                        kObj._md_line.get(i).set_x2(time)
+                        if kObj._md_valid.get(i) and low <= kObj._md_line.get(i).get_y1() and high >= kObj._md_line.get(i).get_y1()
+                            kObj._md_valid.set(i, false)
+            else
+                break
+
+method manage_kz(kz_helper this) =>
+    kz kObj = this._kz    
+    c = this.c
+    string box_txt = this.box_txt
+    string hi_txt = this.hi_txt
+    string loTxt = this.lo_txt
+    if tf_limit_is_equal_or_more_chart_tf
+        t = not na(time("", this.session, gmt_tz))
+        t_prev = not na(time("", this.session, gmt_tz, bars_back = 1))
+        if t and not t_prev
+            _c = get_box_color(c)
+            _t = get_text_color(c)
+            kObj._box.unshift(box.new(time, high, time, low, xloc = xloc.bar_time, border_color = show_kz ? _c : na, bgcolor = show_kz ? _c : na, text = show_kz and show_kz_text ? box_txt : na, text_color = _t))
+            if show_pivots
+                kObj._hi_line.unshift(line.new(time, high, time, high, xloc = xloc.bar_time, style = kzp_style, color = c, width = kzp_width))
+                kObj._lo_line.unshift(line.new(time, low, time, low, xloc = xloc.bar_time, style = kzp_style, color = c, width = kzp_width))
+                if show_midpoints
+                    kObj._md_line.unshift(line.new(time, math.avg(high, low), time, math.avg(high, low), xloc = xloc.bar_time, style = kzm_style, color = c, width = kzm_width))
+                    array.unshift(kObj._md_valid, true)
+                array.unshift(kObj._hi_valid, true)
+                array.unshift(kObj._lo_valid, true)
+                if show_labels
+                    _hi_txt = label_price ? str.format('{0} ({1})', hi_txt, high) : hi_txt
+                    _lo_txt = label_price ? str.format('{0} ({1})', loTxt, low) : loTxt
+                    if label_right
+                        kObj._hi_label.unshift(label.new(time, high, _hi_txt, xloc = xloc.bar_time, color = transparent, textcolor = txt_color, style = label.style_label_left, size = kz_lbl_size))
+                        kObj._lo_label.unshift(label.new(time, low, _lo_txt, xloc = xloc.bar_time, color = transparent, textcolor = txt_color, style = label.style_label_left, size = kz_lbl_size))
+                    else
+                        kObj._hi_label.unshift(label.new(time, high, _hi_txt, xloc = xloc.bar_time, color = transparent, textcolor = txt_color, style = label.style_label_down, size = kz_lbl_size))
+                        kObj._lo_label.unshift(label.new(time, low, _lo_txt, xloc = xloc.bar_time, color = transparent, textcolor = txt_color, style = label.style_label_up, size = kz_lbl_size))
+            del_kz(kObj)
+        adjust_in_kz(kObj, t)
+        adjust_out_kz(kObj, t, t_prev)
+
+for [_, value] in _kz
+    manage_kz(value)
+
+dwm()
+vlines()
+hz_lines()
+
+// ============================================
+// 13. DAY OF WEEK LABELS
+// ============================================
+new_dow_time = dow_xloc == 'Midday' ? time - timeframe.in_seconds("D") / 2 * 1000 : time
+new_day = dayofweek(new_dow_time, gmt_tz) != dayofweek(new_dow_time, gmt_tz)[1]
+var dow_top = dow_yloc == 'Top'
+
+dow_day = dayofweek(new_dow_time, gmt_tz)
+dow_text = dow_day == 1 ? "SUNDAY" : dow_day == 2 ? "MONDAY" : dow_day == 3 ? "TUESDAY" : dow_day == 4 ? "WEDNESDAY" : dow_day == 5 ? "THURSDAY" : dow_day == 6 ? "FRIDAY" : dow_day == 7 ? "SATURDAY" : ""
+show_dow = dow_labels and timeframe.isintraday and new_day and (not dow_hide_wknd or (dow_day != 1 and dow_day != 7))
+
+if show_dow
+    label.new(x=bar_index, y=na, text=dow_text, yloc=dow_top ? yloc.abovebar : yloc.belowbar, color=color.new(color.black, 100), textcolor=txt_color, style=label.style_label_center, size=size.small)
+
+// ============================================
+// 14. AGENT PLOTTING
+// ============================================
+// Market Structure
+if hh and showSwing
+    label.new(bar_index - swingSize, pivHi, 'HH', color=CLEAR, style=label.style_label_down, textcolor=chart.fg_color)
+    if prevSwing[1] == -1 and showHalf
+        line.new(prevLowIndex, (prevLow + pivHi) / 2, bar_index - swingSize, (prevLow + pivHi) / 2, color=halfColor, style=lineStyle(halfStyle), width=halfWidth)
+if lh and showSwing
+    label.new(bar_index - swingSize, pivHi, 'LH', color=CLEAR, style=label.style_label_down, textcolor=chart.fg_color)
+if hl and showSwing
+    label.new(bar_index - swingSize, pivLo, 'HL', color=CLEAR, style=label.style_label_up, textcolor=chart.fg_color)
+if ll and showSwing
+    label.new(bar_index - swingSize, pivLo, 'LL', color=CLEAR, style=label.style_label_up, textcolor=chart.fg_color)
+    if prevSwing[1] == 1 and showHalf
+        line.new(prevHighIndex, (prevHigh + pivLo) / 2, bar_index - swingSize, (prevHigh + pivLo) / 2, color=halfColor, style=lineStyle(halfStyle), width=halfWidth)
+
+if highBroken
+    line.new(prevHighIndex, prevHigh, bar_index, prevHigh, color=bosColor, style=lineStyle(bosStyle), width=bosWidth)
+    label.new(math.floor(bar_index - (bar_index - prevHighIndex) / 2), prevHigh, prevBreakoutDir == -1 and choch ? 'CHoCH' : 'BOS', color=CLEAR, textcolor=bosColor, size=size.tiny)
+    prevBreakoutDir := 1
+if lowBroken
+    line.new(prevLowIndex, prevLow, bar_index, prevLow, color=bosColor, style=lineStyle(bosStyle), width=bosWidth)
+    label.new(math.floor(bar_index - (bar_index - prevLowIndex) / 2), prevLow, prevBreakoutDir == 1 and choch ? 'CHoCH' : 'BOS', color=CLEAR, style=label.style_label_up, textcolor=bosColor, size=size.tiny)
+    prevBreakoutDir := -1
+
+// RSI Momentum
+ema_high_5 = ta.ema(high, 5)
+ema_low_10 = ta.ema(low, 10)
+
+a = plot(filleshow ? ema_high_5 : na, display=display.none, editable=false)
+b = plot(filleshow ? ema_low_10 : na, style=plot.style_stepline, color=color.red, display=display.none, editable=false)
+fill(a, b, color=positive ? bull : bear, editable=false)
+plotshape(showlabels_rsi and pcondition, title="BULLISH RSI Signal", style=shape.labelup, color=p, location=location.belowbar, size=size.tiny, text="🟢Bull", textcolor=color.white)
+plotshape(showlabels_rsi and ncondition2, title="BEARISH RSI Signal", style=shape.labeldown, color=n, location=location.abovebar, size=size.tiny, text="🔴Bear", textcolor=color.white)
+
+// Smart signal triangles
+plotshape(showSmartSignals and newSmartBull, title="Smart Bull 1m", style=shape.triangleup, location=location.belowbar, color=color.lime, size=size.tiny, text="Smart🟢")
+plotshape(showSmartSignals and newSmartBear, title="Smart Bear 1m", style=shape.triangledown, location=location.abovebar, color=color.maroon, size=size.tiny, text="🔴Smart")
+
+// Explicit Buy/Sell Entry Labels
+plotshape(show_entry_lbls and do_bull_entry, title="Buy Entry", style=shape.labelup, location=location.belowbar, color=color.green, textcolor=color.white, size=size.tiny, text="BUY")
+plotshape(show_entry_lbls and do_bear_entry, title="Sell Entry", style=shape.labeldown, location=location.abovebar, color=color.red, textcolor=color.white, size=size.tiny, text="SELL")
+
+// EMAs
+plot(show_emas ? ema21 : na, title="EMA Fast", color=bullish_cross ? color.green : color.red, linewidth=2)
+plot(show_emas ? ema55 : na, title="EMA Slow", color=bullish_cross ? color.green : color.red, linewidth=2)
+
+// Smart PSAR Plots (Gated with Liquidity Trail)
+bool psar_aligned = not use_psar_trend_gate or ((trend == 1 and isPsarBull) or (trend == -1 and not isPsarBull))
+
+color cCore  = psar_aligned ? psar_cCore : color.new(color.gray, psarDecTrans)
+color cInner = psar_aligned ? psar_cInner : color.new(color.gray, math.min(psarDecTrans + 15, 90))
+color cOuter = psar_aligned ? psar_cOuter : color.new(color.gray, math.min(psarDecTrans + 55, 95))
+
+plot(psarEarlyWarn ? na : rawSar,  "PSAR Core",  style=plot.style_circles, linewidth=1, color=cCore)
+plot(rawSar,                    "PSAR Inner", style=plot.style_circles, linewidth=3, color=cInner)
+plot(rawSar,                    "PSAR Outer", style=plot.style_circles, linewidth=6, color=cOuter)
+
+plotshape(psarEarlyWarn and isPsarBull and psar_aligned ? rawSar : na, title="PSAR Early Warn Up", style=shape.triangleup, location=location.absolute, color=color.rgb(255, 210, 0), size=size.tiny)
+plotshape(psarEarlyWarn and not isPsarBull and psar_aligned ? rawSar : na, title="PSAR Early Warn Dn", style=shape.triangledown, location=location.absolute, color=color.rgb(255, 210, 0), size=size.tiny)
+
+// Sweep Labels (Toggleable)
+plotshape(show_psar_sweeps and psarIsSweep and isPsarBull and psar_aligned, title="PSAR Sweep Bull", style=shape.labelup, location=location.belowbar, color=color.rgb(255, 255, 0), size=size.small, text="Sweep")
+plotshape(show_psar_sweeps and psarIsSweep and not isPsarBull and psar_aligned, title="PSAR Sweep Bear", style=shape.labeldown, location=location.abovebar, color=color.rgb(255, 255, 0), size=size.small, text="Sweep")
+
+// Liquidity Trail
+p_trail = plot(trend != trend[1] ? na : trail, "Liquidity Trail", color=trend_col, linewidth=2, style=plot.style_linebr)
+p_trailma = plot(trail_ma, "Trail MA", color=color.new(trend_col, 100), linewidth=1)
+fill(p_trail, p_trailma, color.new(trend_col, 85), title="Trend Cloud")
+
+plotshape(flip_bull ? trail : na, "Trail Buy Glow",  shape.diamond, location.absolute, color = color.new(bull_color, 50), size=size.small)
+plotshape(flip_bull ? trail : na, "Trail Buy",       shape.diamond, location.absolute, color = bull_color,                size=size.tiny)
+plotshape(flip_bear ? trail : na, "Trail Sell Glow", shape.diamond, location.absolute, color = color.new(bear_color, 50), size=size.small)
+plotshape(flip_bear ? trail : na, "Trail Sell",      shape.diamond, location.absolute, color = bear_color,                size=size.tiny)
+
+plotcandle(recolor_candles ? open : na, high, low, close, color=trend_col, wickcolor=trend_col, bordercolor=trend_col, title="Trail-Colored Candles")
+
+// ============================================
+// 15. H4 / H1 RECENT CLOSE DATA (for dashboard)
+// ============================================
+h4_o = request.security(syminfo.tickerid, "240", open)
+h4_h = request.security(syminfo.tickerid, "240", high)
+h4_l = request.security(syminfo.tickerid, "240", low)
+h4_c_prev = request.security(syminfo.tickerid, "240", close[1])
+h1_c_prev = request.security(syminfo.tickerid, "60", close[1])
+
+// Determine active H4 session name from killzones
+string active_kz_txt = "H4-6 (Dead Zone)"
+float active_kz_range = na
+for [_, kz_val] in _kz
+    if not na(time("", kz_val.session, gmt_tz))
+        active_kz_txt := kz_val.box_txt
+        active_kz_range := kz_val._kz._range_current
+
+// ============================================
+// 16. UNIFIED DASHBOARD
+// ============================================
+var table dash = table.new(position.top_right, columns=2, rows=22, bgcolor=color.rgb(0, 0, 0, 80), border_width=1, border_color=color.silver, frame_width=1, frame_color=color.silver)
+
+f_momBar(float score) =>
+    int blocks = math.min(math.round(score / 3.0 * 10.0), 10)
+    string s = ""
+    for i = 1 to 10
+        s += i <= blocks ? "█" : "░"
+    s
+
+f_momColor(float score) =>
+    score >= 2.5 ? color.rgb(0,   255, 120) : score >= 1.5 ? color.rgb(80,  255, 0) : score >= 0.8 ? color.rgb(200, 200, 0) : color.rgb(110, 110, 110)
+
+if barstate.islast
+    // Title
+    table.cell(dash, column=0, row=0, text="Abs$ + ICT [EAT] 🚀", text_color=color.yellow, bgcolor=color.rgb(0, 0, 255, 50), text_size=size.small)
+    table.cell(dash, column=1, row=0, text="", bgcolor=color.rgb(0, 0, 255, 50))
+
+    // Row 1: RSI Momentum
+    string momState = positive ? "Bullish 🟢" : negative ? "Bearish 🔴" : "Neutral ⚪"
+    color momBg = positive ? color.green : negative ? color.red : color.gray
+    table.cell(dash, 0, 1, "RSI Momentum", text_color=color.white, bgcolor=color.black)
+    table.cell(dash, 1, 1, momState + " (" + str.tostring(math.round(rsi,0)) + ")", text_color=color.white, bgcolor=momBg)
+
+    // Row 2: Smart Signal
+    string smartState = newSmartBull ? "Smart Bull 🟢" : newSmartBear ? "Smart Bear 🔴" : "No Signal"
+    color smartBg = newSmartBull ? color.green : newSmartBear ? color.red : color.gray
+    table.cell(dash, 0, 2, "Smart Signal", text_color=color.white, bgcolor=color.black)
+    table.cell(dash, 1, 2, smartState, text_color=color.white, bgcolor=smartBg)
+
+    // Row 3: MS Bias
+    string msBias = prevBreakoutDir == 1 ? "Bullish" : prevBreakoutDir == -1 ? "Bearish" : "Neutral"
+    color msColor = prevBreakoutDir == 1 ? color.green : prevBreakoutDir == -1 ? color.red : color.gray
+    table.cell(dash, 0, 3, "MS Bias", text_color=color.white, bgcolor=color.black)
+    table.cell(dash, 1, 3, msBias, text_color=color.white, bgcolor=msColor)
+
+    // Row 4: Trend Truth (Renamed)
+    table.cell(dash, 0, 4, "Momentum Trend", text_color=color.white, bgcolor=color.black)
+    table.cell(dash, 1, 4, truthTrend, text_color=color.white, bgcolor=truthColor)
+
+    // Row 5: EMA Cross
+    table.cell(dash, 0, 5, "EMA Cross", text_color=color.white, bgcolor=color.black)
+    table.cell(dash, 1, 5, bullish_cross ? "Bullish" : "Bearish", text_color=color.white, bgcolor=bullish_cross ? color.green : color.red)
+
+    // Row 6: Liquidity Trail
+    string trailState = trend == 1 ? "Bullish 🔺" : "Bearish 🔻"
+    color trailBg = trend == 1 ? color.green : color.red
+    table.cell(dash, 0, 6, "Liquidity Trail", text_color=color.white, bgcolor=color.black)
+    table.cell(dash, 1, 6, trailState + "  " + str.tostring(trail, "#.####"), text_color=color.white, bgcolor=trailBg)
+
+    // Row 7: Smart PSAR (New Addition)
+    string psarState = isPsarBull ? "▲ BULLISH" : "▼ BEARISH"
+    if use_psar_trend_gate and not psar_aligned
+        psarState := isPsarBull ? "▲ BULL (Opposing)" : "▼ BEAR (Opposing)"
+    color psarBg = not psar_aligned ? color.gray : (isPsarBull ? color.rgb(0, 191, 255, 50) : color.rgb(255, 102, 0, 50))
+    table.cell(dash, 0, 7, "Smart PSAR", text_color=color.white, bgcolor=color.black)
+    table.cell(dash, 1, 7, psarState, text_color=color.white, bgcolor=psarBg)
+
+    // Row 8: PSAR Momentum Power Bar (New Addition)
+    table.cell(dash, 0, 8, "PSAR Momentum", text_color=color.white, bgcolor=color.black)
+    table.cell(dash, 1, 8, f_momBar(psarMomScore), text_color=f_momColor(psarMomScore), bgcolor=color.black)
+
+    // Row 9: PSAR MTF Context (New Addition)
+    string mtfLabel = psarMtfAligned ? "● ALIGNED (" + psar_htf + ")" : "○ DIVERGED (" + psar_htf + ")"
+    color  mtfColor = psarMtfAligned ? color.rgb(0, 255, 120) : color.rgb(255, 80, 80)
+    table.cell(dash, 0, 9, "PSAR MTF Context", text_color=color.white, bgcolor=color.black)
+    table.cell(dash, 1, 9, mtfLabel, text_color=mtfColor, bgcolor=color.black)
+
+    // Row 10: Position
+    bool hasPos = not na(active_pos)
+    string posState = hasPos ? (active_pos.is_bull ? "LONG" : "SHORT") : "No active position"
+    color posBg = hasPos ? (active_pos.is_bull ? color.green : color.red) : color.gray
+    table.cell(dash, 0, 10, "Position", text_color=color.white, bgcolor=color.black)
+    table.cell(dash, 1, 10, posState, text_color=color.white, bgcolor=posBg)
+
+    // Row 11: Entry / SL
+    table.cell(dash, 0, 11, "Entry / SL", text_color=color.white, bgcolor=color.black)
+    table.cell(dash, 1, 11, hasPos ? str.tostring(active_pos.entry, "#.####") + " / " + str.tostring(active_pos.sl, "#.####") : "—", text_color=color.white, bgcolor=color.gray)
+
+    // Row 12-14: TPs
+    table.cell(dash, 0, 12, "TP1 (" + str.tostring(tp1_r, "#.#") + "R)", text_color=color.white, bgcolor=color.black)
+    table.cell(dash, 1, 12, hasPos ? str.tostring(active_pos.tp1, "#.####") : "—", text_color=color.white, bgcolor=color.new(bull_color, 40))
+
+    table.cell(dash, 0, 13, "TP2 (" + str.tostring(tp2_r, "#.#") + "R)", text_color=color.white, bgcolor=color.black)
+    table.cell(dash, 1, 13, hasPos ? str.tostring(active_pos.tp2, "#.####") : "—", text_color=color.white, bgcolor=color.new(bull_color, 20))
+
+    table.cell(dash, 0, 14, "TP3 (" + str.tostring(tp3_r, "#.#") + "R)", text_color=color.white, bgcolor=color.black)
+    table.cell(dash, 1, 14, hasPos ? str.tostring(active_pos.tp3, "#.####") : "—", text_color=color.white, bgcolor=color.new(bull_color, 0))
+
+    // Row 15: Divider
+    table.cell(dash, 0, 15, "─── EAT TIME ───", text_color=color.silver, bgcolor=color.black)
+    table.cell(dash, 1, 15, "─── H4 / H1 ───", text_color=color.silver, bgcolor=color.black)
+
+    // Row 16: Active H4 Session
+    table.cell(dash, 0, 16, "Active H4 Session", text_color=color.white, bgcolor=color.black)
+    table.cell(dash, 1, 16, active_kz_txt, text_color=color.white, bgcolor=color.navy)
+
+    // Row 17: H4 Prev Close
+    table.cell(dash, 0, 17, "H4 Prev Close", text_color=color.white, bgcolor=color.black)
+    table.cell(dash, 1, 17, str.tostring(h4_c_prev, "#.####"), text_color=color.white, bgcolor=color.rgb(50,50,50))
+
+    // Row 18: H4 Current Open
+    table.cell(dash, 0, 18, "H4 Current Open", text_color=color.white, bgcolor=color.black)
+    table.cell(dash, 1, 18, str.tostring(h4_o, "#.####"), text_color=color.white, bgcolor=color.rgb(50,50,50))
+
+    // Row 19: H4 Current High / Low
+    table.cell(dash, 0, 19, "H4 Curr High / Low", text_color=color.white, bgcolor=color.black)
+    table.cell(dash, 1, 19, str.tostring(h4_h, "#.####") + " / " + str.tostring(h4_l, "#.####"), text_color=color.white, bgcolor=color.rgb(50,50,50))
+
+    // Row 20: H1 Prev Close
+    table.cell(dash, 0, 20, "H1 Prev Close", text_color=color.white, bgcolor=color.black)
+    table.cell(dash, 1, 20, str.tostring(h1_c_prev, "#.####"), text_color=color.white, bgcolor=color.rgb(50,50,50))
+
+    // Row 21: Active KZ Range
+    table.cell(dash, 0, 21, "Active KZ Range", text_color=color.white, bgcolor=color.black)
+    table.cell(dash, 1, 21, not na(active_kz_range) ? str.tostring(active_kz_range, "#.####") : "—", text_color=color.white, bgcolor=color.rgb(50,50,50))
+
+// ============================================
+// 17. KILLZONE RANGE TABLE (separate, optional)
+// ============================================
+get_min_days_stored() =>
+    store = array.new_int()
+    for [_, value] in _kz
+        int tmpStoreSize = value._kz._range_store.size()
+        if tmpStoreSize > 0
+            store.push(tmpStoreSize) 
+    store.min()
+
+method set_table(table tbl, kz kObj, int row, string txt, bool t, color col) =>
+    table.cell(tbl, 0, row, txt, text_size = range_size, bgcolor = get_box_color(col), text_color = txt_color)
+    table.cell(tbl, 1, row, str.tostring(kObj._range_current), text_size = range_size, bgcolor = t ? get_box_color(col) : na, text_color = txt_color)
+    if show_range_avg
+        table.cell(tbl, 2, row, str.tostring(kObj._range_store.avg()), text_size = range_size, text_color = txt_color)
+
+if show_range and barstate.islast
+    var tbl = table.new(range_pos, 10, 10, chart.bg_color, chart.fg_color, 2, chart.fg_color, 1)
+    table.cell(tbl, 0, 0, "Killzone", text_size = range_size, text_color = txt_color)
+    table.cell(tbl, 1, 0, "Range", text_size = range_size, text_color = txt_color)
+    if show_range_avg
+        table.cell(tbl, 2, 0, "Avg (" + str.tostring(get_min_days_stored()) + ")", text_size = range_size, text_color = txt_color)
+    for [index, value] in _kz
+        set_table(tbl, value._kz, index + 1, value.box_txt, not na(time("", value.session, gmt_tz)), value.c)
+
+// ============================================
+// 18. ALERTS
+// ============================================
+await = awaitBarConfirmation ? barstate.isconfirmed : true
+alertcondition(pcondition and await, title="RSI Bullish Breakout", message="RSI Bullish Breakout, {{exchange}}:{{ticker}}")
+alertcondition(ncondition2 and await, title="RSI Bearish Breakout", message="RSI Bearish Breakout, {{exchange}}:{{ticker}}")
+alertcondition(newSmartBull and await, title='Smart Bull Momentum', message='Smart Bull Momentum Detected (M5 Confirmed), {{exchange}}:{{ticker}}')
+alertcondition(newSmartBear and await, title='Smart Bear Momentum', message='Smart Bear Momentum Detected (M5 Confirmed), {{exchange}}:{{ticker}}')
+alertcondition(flip_bull,           "Trail Bull Signal",     "Structural Liquidity Trail bullish {{ticker}}")
+alertcondition(flip_bear,           "Trail Bear Signal",     "Structural Liquidity Trail bearish {{ticker}}")
+alertcondition(retest_bull_entry,   "Bull Trail Retest Entry", "Bull trail retest entry on {{ticker}}")
+alertcondition(retest_bear_entry,   "Bear Trail Retest Entry", "Bear trail retest entry on {{ticker}}")
+alertcondition(psarFlip and psarMtfAligned, "Smart PSAR Flip", "Smart PSAR MTF Aligned Flip on {{ticker}}")
