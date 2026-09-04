@@ -1,0 +1,670 @@
+TRON does not actually calculate separate H1, M15 and M5 dashboard states internally. The dashboard is populated from the current chart timeframe, while it separately pulls M5 RSI/EMA and H4/H1 session data. The script is optimized for M1/M5 and limits the drawing layer around 15m.
+So when we use your H1 → M15 → M5 templates, we are externalizing the same TRON engine by reading it on those chart timeframes, not pretending the dashboard itself contains four independent timeframe dashboards.
+That is exactly how I would build this.
+
+TRON ALPHA — OFFICIAL EXTERNALIZED DICTIONARY
+1. The dashboard's exact vocabulary
+The live dashboard exposes these fields:
+RSI Momentum
+Smart Signal
+MS Bias
+Momentum Trend
+EMA Cross
+Liquidity Trail
+Smart PSAR
+PSAR Momentum
+PSAR MTF Context
+Position
+Entry / SL
+TP1
+TP2
+TP3
+Active H4 Session
+H4 Prev Close
+H4 Current Open
+H4 Current High / Low
+H1 Prev Close
+Active KZ Range
+Those labels and the exact displayed states are in the source.
+So those names should become the canonical Telegram vocabulary.
+
+2. TRON color/state dictionary
+RSI Momentum
+The dashboard literally outputs:
+Bullish 🟢
+Bearish 🔴
+Neutral ⚪
+plus rounded RSI value.
+The actual underlying engine uses:
+RSI length = 10
+Bullish threshold = 55
+Bearish threshold = 48
+Overbought exhaustion = 85
+Oversold exhaustion = 20.
+Telegram dictionary
+🟢 RSI Momentum = Bullish
+→ Buying momentum state is active.
+
+🔴 RSI Momentum = Bearish
+→ Selling momentum state is active.
+
+⚪ RSI Momentum = Neutral
+→ No active bullish/bearish momentum state.
+
+🚨 RSI ≥ 85
+→ Bullish momentum has reached the configured exhaustion boundary.
+
+🚨 RSI ≤ 20
+→ Bearish momentum has reached the configured exhaustion boundary.
+One subtle but important detail: the actual bearish condition requires RSI < 48, RSI > 20, and falling RSI EMA; the bullish condition requires RSI to cross above 55, remain below 85, and have rising RSI EMA.
+So don't reduce TRON to a generic RSI rule.
+
+3. Smart Signal
+The exact dashboard states are:
+Smart Bull 🟢
+Smart Bear 🔴
+No Signal.
+The actual engine requires the RSI state plus M5 confirmation when enabled. smartBull requires bullish RSI conditions and M5 bullish conditions; smartBear requires bearish RSI conditions and M5 bearish conditions.
+Telegram dictionary
+🟢 Smart Bull
+→ TRON has detected a new bullish momentum event with M5 confirmation.
+
+🔴 Smart Bear
+→ TRON has detected a new bearish momentum event with M5 confirmation.
+
+⚪ No Signal
+→ No new Smart Bull/Smart Bear event is currently being generated.
+Notice new event.
+That matters because Smart Signal is based on:
+newSmartBull = smartBull and not smartBull[1]
+and likewise for bearish.
+So Smart Signal ≠ current overall bias.
+That distinction needs to be in the SOP.
+
+4. MS Bias
+Dashboard:
+Bullish
+Bearish
+Neutral.
+The structural engine identifies:
+HH
+LH
+HL
+LL
+and then detects breaks of active swing high/low.
+The dashboard's MS Bias is the stored prevBreakoutDir.
+1 → Bullish
+-1 → Bearish
+0 → Neutral
+Telegram dictionary
+🟢 MS Bias = Bullish
+→ Last stored structural breakout direction is bullish.
+
+🔴 MS Bias = Bearish
+→ Last stored structural breakout direction is bearish.
+
+⚪ MS Bias = Neutral
+→ No stored breakout direction is active.
+And the chart's actual structural vocabulary remains:
+🟢 HH = Higher High
+🔴 LH = Lower High
+🟢 HL = Higher Low
+🔴 LL = Lower Low
+
+⚡ BOS = Break of Structure
+🔄 CHoCH = structural break occurring against the previous breakout direction
+The script labels BOS versus CHoCH according to the previous breakout direction.
+
+Absolute Dollar 💰:
+5. Momentum Trend
+The dashboard calls the field Momentum Trend, but internally this is the old "Trend Truth" variable.
+The actual score has three components:
+M5 smoothed RSI
+5-bar price momentum
+EMA 21/55 direction
+Each contributes +1, 0, or -1.
+Then:
+score >= +2 → Bullish 📈
+score <= -2 → Bearish 📉
+otherwise → Neutral ⚖️
+That's verbatim from the source logic.
+Telegram dictionary
+📈 Momentum Trend = Bullish
+→ Composite trend score is +2 or greater.
+
+📉 Momentum Trend = Bearish
+→ Composite trend score is -2 or lower.
+
+⚖️ Momentum Trend = Neutral
+→ Composite trend score is between those thresholds.
+This is much more precise than calling it "overall health."
+
+6. EMA Cross
+TRON literally calculates:
+EMA21 = EMA(close, 21)
+EMA55 = EMA(close, 55)
+
+EMA21 > EMA55 → Bullish
+EMA21 <= EMA55 → Bearish
+and the dashboard displays:
+Bullish
+or
+Bearish.
+Telegram
+🟢 EMA Cross Bullish
+→ EMA21 is above EMA55.
+
+🔴 EMA Cross Bearish
+→ EMA21 is not above EMA55.
+
+7. Liquidity Trail
+This is more than an ordinary trailing stop.
+TRON computes:
+Trail MA = EMA(close, MA length)
+ATR = ATR(14)
+Raw Bull Trail = MA - ATR × 2
+Raw Bear Trail = MA + ATR × 2
+Default source values:
+MA length = 13
+ATR length = 14
+ATR multiplier = 2.0.
+The system maintains a trend state and can flip bullish/bearish depending on price relative to the trail and the Alpha Gate.
+Dashboard output:
+Bullish 🔺 + price
+or
+Bearish 🔻 + price.
+Telegram
+🟢 Liquidity Trail Bullish @ [LEVEL]
+→ Active trail state is bullish.
+
+🔴 Liquidity Trail Bearish @ [LEVEL]
+→ Active trail state is bearish.
+
+📍 Trail Level
+→ Current dynamic state boundary.
+And when the trail flips, the actual code generates:
+Trail Buy
+Trail Sell
+events.
+So:
+🟢 Trail Flip
+→ Structural Liquidity Trail bullish.
+
+🔴 Trail Flip
+→ Structural Liquidity Trail bearish.
+The alert strings literally say "Structural Liquidity Trail bullish" and "Structural Liquidity Trail bearish".
+
+8. Smart PSAR
+The dashboard literally displays:
+▲ BULLISH
+▼ BEARISH
+or, when the PSAR conflicts with the Liquidity Trail:
+▲ BULL (Opposing)
+▼ BEAR (Opposing).
+The internal logic defines PSAR direction as:
+close > PSAR → bullish
+close <= PSAR → bearish
+and identifies a PSAR flip when direction changes.
+Telegram
+🟢 Smart PSAR = Bullish
+🔴 Smart PSAR = Bearish
+
+⚠️ Bull (Opposing)
+→ Bullish PSAR is opposing the active Liquidity Trail.
+
+⚠️ Bear (Opposing)
+→ Bearish PSAR is opposing the active Liquidity Trail.
+That Opposing state is very specifically TRON language and should absolutely remain in the externalized template.
+
+9. PSAR MTF Context
+The source calculates:
+Current PSAR direction
+vs
+PSAR direction on psar_htf
+Default psar_htf = 5.
+Dashboard outputs exactly:
+● ALIGNED (5)
+or
+○ DIVERGED (5).
+Telegram
+✅ PSAR MTF ALIGNED (5)
+→ Current PSAR agrees with M5 PSAR context.
+
+⚠️ PSAR MTF DIVERGED (5)
+→ Current PSAR conflicts with M5 PSAR context.
+This is far better than our previous generic "higher timeframe agrees" wording.
+It is specifically the configured PSAR MTF context, not an abstract whole-market higher-timeframe agreement.
+
+10. PSAR Momentum
+TRON calculates:
+PSAR distance / ATR
+and converts that into the dashboard bar:
+████████░░
+The score is explicitly derived from PSAR distance divided by ATR.
+Telegram
+🛰 PSAR Momentum: [██████░░░░]
+
+Meaning:
+Distance between price and PSAR relative to ATR.
+We should not invent labels like "strong" or "weak" unless we define them ourselves. The script itself currently gives us the bar and its color thresholds, not textual strength labels.
+That's an example of where we preserve the source instead of adding our own assumptions.
+
+11. Position
+Dashboard:
+LONG
+SHORT
+No active position.
+The position is only generated after:
+Signal Change OR Trail Retest
+AND
+PSAR direction clears
+AND
+RSI momentum clears.
+So the externalized language should be:
+🟢 POSITION = LONG
+🔴 POSITION = SHORT
+⚪ POSITION = No active position
+and, importantly:
+Position Tool state is the result of TRON's configured execution gates; it is not the same thing as Smart Signal.
+That distinction is directly supported by the code.
+
+Absolute Dollar 💰:
+12. Entry / SL / TP
+The source explicitly calculates:
+Entry = close
+SL = Liquidity Trail
+Risk = abs(Entry - SL)
+Then:
+TP1 = 1R
+TP2 = 1.5R
+TP3 = 2R
+by default.
+So your Telegram language can literally mirror the dashboard:
+🎯 POSITION MODEL
+
+Entry: [PRICE]
+SL: [PRICE]
+
+TP1: [PRICE] — 1R
+TP2: [PRICE] — 1.5R
+TP3: [PRICE] — 2R
+
+13. H4/H1 SESSION CONTEXT
+This is where your H1 template can become much stronger.
+TRON directly pulls:
+H4 Current Open
+H4 Current High
+H4 Current Low
+H4 Previous Close
+H1 Previous Close
+and determines:
+Active H4 Session
+Active KZ Range
+from the killzone system.
+The session vocabulary in the source is:
+Asia (H4-1)
+LDN Open (H4-2)
+LDN Mid (H4-3)
+LDN-NY Overlap (H4-4)
+NY PM (H4-5)
+H4-6 (Dead Zone)
+with the actual configured times shown in the code.
+
+Now your ORIGINAL templates become genuinely TRON-native
+📊 TEMPLATE 1 — H1 MACRO REGIME
+📊 TRON ALPHA — H1 MACRO REGIME
+
+💰 XAUUSD: [PRICE]
+🕐 [TIME] EAT
+⏰ [ACTIVE H4 SESSION]
+
+━━━━━━━━━━━━━━
+🌍 MACRO STATE
+━━━━━━━━━━━━━━
+
+📈 EMA Cross: [🟢 Bullish / 🔴 Bearish]
+
+🌊 Liquidity Trail:
+[🟢 Bullish / 🔴 Bearish] @ [LEVEL]
+
+📊 RSI Momentum:
+[🟢 Bullish / 🔴 Bearish / ⚪ Neutral] ([VALUE])
+
+🏛 MS Bias:
+[🟢 Bullish / 🔴 Bearish / ⚪ Neutral]
+
+🧠 Momentum Trend:
+[📈 Bullish / 📉 Bearish / ⚖️ Neutral]
+
+━━━━━━━━━━━━━━
+📍 H4 / H1 LOCATION
+━━━━━━━━━━━━━━
+
+H4 Prev Close: [VALUE]
+H4 Open: [VALUE]
+H4 High: [VALUE]
+H4 Low: [VALUE]
+H1 Prev Close: [VALUE]
+
+KZ Range: [VALUE]
+
+━━━━━━━━━━━━━━
+🧠 TRON NARRATIVE
+━━━━━━━━━━━━━━
+
+[Compress the actual dashboard relationships.]
+
+Example:
+
+🔴 Bearish macro state.
+EMA Cross, Liquidity Trail, MS Bias and Momentum Trend remain bearish.
+RSI Momentum is [VALUE].
+Current H4 session: [SESSION].
+
+🎯 TRON STATE:
+[BEARISH TREND / BEARISH PULLBACK / TRANSITION / NEUTRAL]
+
+📈 TEMPLATE 2 — M15 STRUCTURAL TREND
+📈 TRON ALPHA — M15 STRUCTURAL
+
+💰 Price: [PRICE]
+⏰ Session: [SESSION]
+
+━━━━━━━━━━━━━━
+🏛 STRUCTURE
+━━━━━━━━━━━━━━
+
+MS Bias:
+[🟢 Bullish / 🔴 Bearish / ⚪ Neutral]
+
+Structure:
+[HH / HL / LH / LL]
+
+Break:
+[BOS / CHoCH / NONE]
+
+━━━━━━━━━━━━━━
+🌊 TREND
+━━━━━━━━━━━━━━
+
+EMA:
+[🟢 Bullish / 🔴 Bearish]
+
+Liquidity Trail:
+[🟢 / 🔴] @ [LEVEL]
+
+Momentum Trend:
+[📈 / 📉 / ⚖️]
+
+━━━━━━━━━━━━━━
+🛰 PSAR
+━━━━━━━━━━━━━━
+
+Smart PSAR:
+[🟢 Bullish / 🔴 Bearish /
+⚠️ Bull Opposing / ⚠️ Bear Opposing]
+
+PSAR Momentum:
+[████████░░]
+
+PSAR MTF:
+[✅ ALIGNED / ⚠️ DIVERGED] ([TF])
+
+━━━━━━━━━━━━━━
+🧠 TRON NARRATIVE
+━━━━━━━━━━━━━━
+
+[What the M15 TRON state is actually doing relative to the H1 state.]
+
+Examples:
+
+🟢 STRUCTURAL CONFIRMATION
+M15 structure and trend state agree with H1.
+
+or
+
+⚠️ COUNTERTREND STATE
+M15 is moving against the current H1 directional state.
+
+or
+
+🔄 TRANSITION
+Structure and momentum are changing; no stable directional state is established.
+
+⚡ TEMPLATE 3 — M5 EXECUTION ENGINE
+This one should be especially faithful to the source.
+⚡ TRON ALPHA — M5 EXECUTION
+
+💰 XAUUSD: [PRICE]
+🕐 [TIME] EAT
+
+━━━━━━━━━━━━━━
+📊 MOMENTUM
+━━━━━━━━━━━━━━
+
+RSI Momentum:
+[🟢 Bullish / 🔴 Bearish / ⚪ Neutral] ([VALUE])
+
+Smart Signal:
+[🟢 Smart Bull / 🔴 Smart Bear / ⚪ No Signal]
+
+Momentum Trend:
+[📈 Bullish / 📉 Bearish / ⚖️ Neutral]
+
+━━━━━━━━━━━━━━
+🏛 STRUCTURE
+━━━━━━━━━━━━━━
+
+MS Bias:
+[🟢 Bullish / 🔴 Bearish / ⚪ Neutral]
+
+BOS / CHoCH:
+[VALUE]
+
+━━━━━━━━━━━━━━
+🌊 TRAIL + EMA
+━━━━━━━━━━━━━━
+
+EMA Cross:
+[🟢 Bullish / 🔴 Bearish]
+
+Liquidity Trail:
+[🟢 Bullish 🔺 / 🔴 Bearish 🔻] @ [LEVEL]
+
+━━━━━━━━━━━━━━
+🛰 SMART PSAR
+━━━━━━━━━━━━━━
+
+PSAR:
+[🟢 Bullish / 🔴 Bearish]
+
+PSAR Momentum:
+[████████░░]
+
+MTF Context:
+[✅ ALIGNED / ⚠️ DIVERGED] ([TF])
+
+━━━━━━━━━━━━━━
+🎯 POSITION TOOL
+━━━━━━━━━━━━━━
+
+Position:
+[🟢 LONG / 🔴 SHORT / ⚪ NONE]
+
+Entry:
+[VALUE]
+
+SL:
+[VALUE]
+
+TP1:
+[VALUE] — 1R
+
+TP2:
+[VALUE] — 1.5R
+
+TP3:
+[VALUE] — 2R
+
+━━━━━━━━━━━━━━
+🧠 TRON EXECUTION NARRATIVE
+━━━━━━━━━━━━━━
+
+[State exactly what TRON is currently showing.]
+
+⚠️ Smart Signal and Position Tool are separate states.
+That last line is important and is source-supported.
+
+🚀 TEMPLATE 4 — FULL PUBLIC CHANNEL
+This is where we finally combine everything without losing TRON.
+🚀 TRON ALPHA — XAUUSD MARKET INTELLIGENCE
+
+Absolute Dollar 💰:
+📅 [DATE]
+🕐 [TIME] EAT
+💰 Price: [PRICE]
+⏰ Active H4 Session: [SESSION]
+
+━━━━━━━━━━━━━━━━
+🌍 H1 — MACRO REGIME
+━━━━━━━━━━━━━━━━
+
+📈 EMA: [🟢/🔴]
+🌊 Trail: [🟢/🔴] @ [LEVEL]
+📊 RSI: [🟢/🔴/⚪] [VALUE]
+🏛 MS Bias: [🟢/🔴/⚪]
+🧠 Momentum: [📈/📉/⚖️]
+
+📍 H4 Prev Close: [VALUE]
+📍 H4 Open: [VALUE]
+📍 H4 High: [VALUE]
+📍 H4 Low: [VALUE]
+📍 H1 Prev Close: [VALUE]
+📏 KZ Range: [VALUE]
+
+🧠 H1 INTELLIGENCE:
+[1–2 sentence TRON narrative]
+
+━━━━━━━━━━━━━━━━
+📐 M15 — STRUCTURAL TREND
+━━━━━━━━━━━━━━━━
+
+🏛 MS Bias: [VALUE]
+📐 Structure: [HH/HL/LH/LL]
+⚡ Break: [BOS/CHoCH/NONE]
+
+📈 EMA: [VALUE]
+🌊 Trail: [VALUE]
+🧠 Momentum: [VALUE]
+
+🛰 PSAR: [VALUE]
+🔗 MTF: [✅ ALIGNED / ⚠️ DIVERGED]
+
+🧠 M15 INTELLIGENCE:
+[1–2 sentence TRON narrative]
+
+━━━━━━━━━━━━━━━━
+⚡ M5 — EXECUTION ENGINE
+━━━━━━━━━━━━━━━━
+
+📊 RSI: [VALUE] [STATE]
+🎯 Smart Signal: [STATE]
+
+🏛 MS Bias: [STATE]
+📈 EMA: [STATE]
+🌊 Trail: [STATE] @ [LEVEL]
+
+🛰 PSAR: [STATE]
+📶 PSAR Momentum: [BAR]
+🔗 MTF: [STATE]
+
+🎯 Position: [LONG/SHORT/NONE]
+Entry: [VALUE]
+SL: [VALUE]
+TP1: [VALUE]
+TP2: [VALUE]
+TP3: [VALUE]
+
+🧠 M5 INTELLIGENCE:
+[1–2 sentence TRON execution narrative]
+
+━━━━━━━━━━━━━━━━
+🧩 TRON SYNTHESIS
+━━━━━━━━━━━━━━━━
+
+🌍 MACRO:
+[STATE]
+
+📐 STRUCTURE:
+[STATE]
+
+⚡ EXECUTION:
+[STATE]
+
+🔗 INTERNAL ALIGNMENT:
+[ALIGNED / MIXED / TRANSITION]
+
+🧠 TRON READ:
+[ONE compressed statement derived ONLY from the displayed states]
+
+━━━━━━━━━━━━━━━━
+🎯 OPERATOR WATCH
+━━━━━━━━━━━━━━━━
+
+👁 [KEY TRON STATE TO WATCH]
+👁 [KEY TRON LEVEL]
+👁 [KEY TRANSITION]
+
+TRON provides market intelligence.
+The operator remains responsible for the final decision and execution.
+
+The important thing is how the narrative is generated
+We should not let the narrative be arbitrary prose.
+It should be generated from the actual states.
+For example:
+Case A — full bearish agreement
+EMA = Bearish
+Trail = Bearish
+MS = Bearish
+Momentum = Bearish
+PSAR = Bearish
+MTF = Aligned
+TRON narrative:
+🔴 BEARISH INTERNAL ALIGNMENT — EMA regime, Liquidity Trail, Market Structure and Momentum Trend are bearish. Smart PSAR is bearish and MTF-aligned. The current TRON state is internally synchronized to the downside.
+Case B — bearish H1, bullish M15
+H1 = Bearish
+M15 = Bullish
+Narrative:
+⚠️ COUNTERTREND STATE — the M15 directional state is opposing the higher-timeframe bearish environment. TRON is showing lower-timeframe strength inside a conflicting macro state.
+Case C — bearish state but no Smart Signal
+Trail = Bearish
+MS = Bearish
+Momentum = Bearish
+Smart Signal = No Signal
+Narrative:
+🔴 ESTABLISHED BEARISH STATE — NO NEW SMART EVENT. Current bearish conditions remain active, but TRON is not generating a new Smart Bear event on this bar.
+That's far more faithful to the actual code.
+
+One thing I would explicitly add to your original cheat sheet
+Your original cheat sheet said:
+“MTF Aligned = Higher timeframe agrees with this bias.”
+We should change it.
+The source says:
+PSAR MTF Context = whether current PSAR direction equals the PSAR direction from psar_htf (default 5m).
+So the official dictionary should say:
+✅ PSAR MTF ALIGNED
+Current PSAR direction agrees with the configured PSAR MTF timeframe.
+⚠️ PSAR MTF DIVERGED
+Current PSAR direction differs from the configured PSAR MTF timeframe.
+That's a small wording change, but it makes the playbook technically honest.
+
+And there's a second important correction:
+Your original cheat sheet says:
+“Trail acts as dynamic support/resistance.”
+That's reasonable as an operator interpretation, but the code itself actually defines the Trail as a directional state engine and uses it in the execution gate.
+So our official language should lead with:
+Liquidity Trail = current structural trend state + level
+and only then say:
+“The level can be treated as a dynamic reference.”
+That keeps TRON's own logic above generic trading interpretation.
+This is now the foundation I would use for the actual TRON Externalization Dictionary + H1/M15/M5/Combined Telegram SOP.
