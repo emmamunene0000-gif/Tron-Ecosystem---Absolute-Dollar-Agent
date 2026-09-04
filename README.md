@@ -1,1661 +1,2648 @@
-# Tron-Ecosystem---Absolute-Dollar-Agent
-Absolute Dollar Intelligence (ADI) / TRON — GitHub Internal AI Handover
+# ABSOLUTE DOLLAR INTELLIGENCE
 
-Document status: Working handover / source-of-truth context
-Date: 2026-09-03
-Purpose: Give GitHub Internal AI the complete project context needed to continue ADI/TRON work without redesigning, reinterpreting, or drifting from the existing system.
+# TRON — MASTER PRODUCT, WEBSITE & COMMERCIAL MD
 
-0. NON-NEGOTIABLE OPERATING RULE
+**Status:** Living Master Document
+**Last Updated:** 2026-09-04
+**Product:** Absolute Dollar Intelligence (ADI)
+**Current Product:** TRON Alpha V1.1
+**Future Product:** TRON V2
+**Website:** Lovable — ADI Front Door
+**Commercial Access:** Whop — Commercial / Access Door
+**Community / Onboarding:** WhatsApp
+**Market Intelligence Delivery:** TradingView
+**Core Philosophy:** Learn. Understand. Observe. Execute.
 
-This project must be treated as an existing system being externalized and evolved, not as a blank-slate product.
+---
 
-Do not:
+# 1. PURPOSE OF THIS DOCUMENT
 
-redesign TRON from scratch;
+This is the **Master MD** for Absolute Dollar Intelligence and the TRON product ecosystem.
 
-rewrite TRON logic merely to make it easier to implement elsewhere;
+It is not a temporary implementation plan.
 
-invent signals, states, probabilities, market narratives, or capabilities;
+It is not a marketing brief.
 
-replace the source-of-truth Pine implementation with generic AI reasoning;
+It is not a generic AI-generated product description.
 
-turn TRON into a conventional prediction engine;
+It is the evolving source of truth that should be used to keep:
 
-make the existing V1/V1.1 product look obsolete;
+* the website,
+* TRON product positioning,
+* V1.1 documentation,
+* V2 planning,
+* commercial access,
+* community onboarding,
+* campaign messaging,
+* technical implementation,
+* and future AI-assisted development
 
-introduce generic trading-indicator language where the actual TRON vocabulary is available.
+aligned.
 
-When the actual TRON V1 Pine source is uploaded, treat that source as authoritative for technical behavior. Where this handover and the source disagree, inspect the source and preserve the actual implementation.
+Whenever there is a conflict between this document and generic assumptions made by an AI, **this document wins** unless a newer explicit product decision supersedes it.
 
-The user's previously supplied TRON dictionary, Telegram templates, product architecture, and customer-journey decisions are also canonical context.
+---
 
-1. WHAT TRON IS
+# 2. CORE PRODUCT PHILOSOPHY
 
-TRON is a deterministic market-reading and decision-support engine.
+## Absolute Dollar Intelligence
 
-It is not fundamentally a signal-selling service and it is not intended to predict price.
+**Learn. Understand. Observe. Execute.**
 
-The governing philosophy is:
+ADI is being built around the idea that traders do not necessarily need another black-box system telling them what to do.
 
-TRON DOES NOT NEED TO PREDICT PRICE. TRON NEEDS TO READ PRICE EXCEPTIONALLY WELL.
+They need a framework that helps them **read the market**.
 
-ADI motto:
+TRON is therefore fundamentally a:
 
-LEARN. UNDERSTAND. OBSERVE. EXECUTE.
+> **deterministic market-intelligence and decision-support engine.**
 
-Core philosophy:
+TRON's job is to organize observable market information into an understandable operating framework.
 
-Analysis → Capital → Execution
+The philosophy is:
 
-TRON is built around a live Pine Script indicator on TradingView. The Pine Script itself executes the defined TRON logic.
+> **TRON DOES NOT NEED TO PREDICT PRICE.
+> TRON NEEDS TO READ PRICE EXCEPTIONALLY WELL.**
 
-The future "TRON AI" is therefore not a replacement for TRON.
-
-It is an Augmented Intelligence layer around the live deterministic TRON engine.
-
-2. TRON AI — CORRECT CONCEPT
-
-The intended future system is:
-
-LIVE MARKET
-    ↓
-TRADINGVIEW
-    ↓
-LIVE TRON PINE SCRIPT
-    ↓
-TRON DETERMINISTIC LOGIC
-    ↓
-TRON EVENTS / STATES
-    ↓
-TRON AI — AUGMENTED INTELLIGENCE
-    ↓
-ANALYSIS / OPPORTUNITY MONITORING / STATE UPDATES
-    ↓
-LOVABLE TRON INTERFACE
-    ↓
-TELEGRAM / OTHER OUTPUT SURFACES
-
-The AI must operate from actual TRON observations.
-
-It can:
-
-observe TRON state;
-
-compare current state with previous state;
-
-maintain evolving context;
-
-prepare analysis;
-
-monitor developing opportunities;
-
-identify state transitions;
-
-prepare concise explanations;
-
-update analysis as price develops;
-
-produce externalized TRON communications.
-
-It must not:
-
-invent market conditions;
-
-fabricate confirmations;
-
-override the deterministic TRON state;
-
-convert uncertainty into certainty;
-
-manufacture a signal simply because an AI model thinks a market move is likely.
-
-TRON observations are the ground truth.
-
-3. TRON SOURCE ARCHITECTURE
-
-The current TRON implementation is understood as four merged systems:
-
-ICT Killzones / Pivots
-
-Absolute Dollar Agent
-
-Smart PSAR
-
-Unified Dashboard
-
-Core components exposed by the live system include:
-
-Market Structure
-
-RSI Momentum
-
-EMA Regime
-
-Liquidity Trail
-
-Smart PSAR
-
-Killzones
-
-Position Tool
-
-Dashboard
-
-The actual dashboard vocabulary is important and should be preserved.
-
-4. CANONICAL TRON VOCABULARY
-
-RSI Momentum
-
-Dashboard states:
-
-Bullish 🟢
-
-Bearish 🔴
-
-Neutral ⚪
-
-Underlying configuration previously identified:
-
-RSI length: 10
-
-Bullish threshold: 55
-
-Bearish threshold: 48
-
-Overbought exhaustion: 85
-
-Oversold exhaustion: 20
-
-Important implementation detail:
-
-The bullish/bearish state is not simply "RSI above/below one line."
-
-The bullish condition involves the configured threshold, non-exhaustion condition, RSI EMA direction, and related logic.
-
-The bearish condition similarly includes its own conditions.
-
-External language should preserve the state rather than simplify it into generic RSI advice.
-
-Smart Signal
-
-Dashboard states:
-
-Smart Bull 🟢
-
-Smart Bear 🔴
-
-No Signal ⚪
-
-Smart Signal is an event, not simply the current bias.
-
-The source logic uses new-event detection:
-
-newSmartBull = smartBull AND NOT smartBull[1]
-
-newSmartBear = smartBear AND NOT smartBear[1]
-
-When enabled, M5 confirmation is also involved.
-
-Therefore:
-
-Smart Signal ≠ overall TRON directional state.
-
-A current bearish state can exist while Smart Signal says No Signal.
-
-Market Structure / MS Bias
-
-Dashboard:
-
-Bullish
-
-Bearish
-
-Neutral
-
-Structural vocabulary:
-
-HH = Higher High
-
-HL = Higher Low
-
-LH = Lower High
-
-LL = Lower Low
-
-BOS = Break of Structure
-
-CHoCH = structural break against the previous breakout direction
-
-MS Bias is based on the stored breakout direction in the implementation.
-
-Momentum Trend
-
-Dashboard label:
-
-Momentum Trend
-
-Internally this was identified as the former "Trend Truth" concept.
-
-Three components contribute:
-
-M5 smoothed RSI
-
-5-bar price momentum
-
-EMA 21/55 direction
-
-Each contributes +1, 0, or -1.
-
-Thresholds:
-
-score >= +2 → Bullish 📈
-
-score <= -2 → Bearish 📉
-
-otherwise → Neutral ⚖️
-
-Do not replace this with vague language such as "overall market health."
-
-EMA Cross
-
-TRON uses:
-
-EMA 21
-
-EMA 55
-
-Dashboard:
-
-Bullish when EMA21 > EMA55
-
-Bearish otherwise
-
-External wording:
-
-🟢 EMA Cross Bullish
-🔴 EMA Cross Bearish
-
-Liquidity Trail
-
-The Liquidity Trail is not merely a generic trailing stop.
-
-Previously identified defaults:
-
-MA length: 13
-
-ATR length: 14
-
-ATR multiplier: 2.0
-
-Conceptually:
-
-Trail MA = EMA(close, MA length)
-
-Bull trail = MA - ATR × multiplier
-
-Bear trail = MA + ATR × multiplier
-
-The system maintains directional state and can generate Trail Buy / Trail Sell events.
-
-Dashboard:
-
-Bullish 🔺 + level
-
-Bearish 🔻 + level
-
-Canonical external language:
-
-🟢 Liquidity Trail Bullish @ [LEVEL]
-🔴 Liquidity Trail Bearish @ [LEVEL]
-
-Primary meaning:
-
-current structural/directional Liquidity Trail state + reference level.
-
-Do not reduce it merely to "support/resistance."
-
-Smart PSAR
-
-Dashboard can show:
-
-▲ BULLISH
-
-▼ BEARISH
-
-▲ BULL (Opposing)
-
-▼ BEAR (Opposing)
-
-Direction is based on price relative to PSAR.
-
-The "Opposing" state is important TRON vocabulary and must remain.
-
-Canonical external language:
-
-🟢 Smart PSAR = Bullish
-🔴 Smart PSAR = Bearish
-⚠️ Bull (Opposing)
-⚠️ Bear (Opposing)
-
-PSAR MTF Context
-
-The source compares current PSAR direction with the PSAR direction from the configured higher timeframe.
-
-Default previously identified:
-
-psar_htf = 5
-
-Dashboard:
-
-● ALIGNED (5)
-
-○ DIVERGED (5)
-
-Important correction to earlier generic documentation:
-
-Do NOT say:
-
-"Higher timeframe agrees with this bias."
-
-The technically accurate language is:
-
-PSAR MTF ALIGNED = current PSAR direction agrees with the configured PSAR MTF timeframe.
-
-PSAR MTF DIVERGED = current PSAR direction differs from the configured PSAR MTF timeframe.
-
-PSAR Momentum
-
-The dashboard displays a visual bar such as:
-
-████████░░
-
-The value is derived from PSAR distance relative to ATR.
-
-Do not invent textual strength classifications unless the source explicitly provides them.
-
-Position Tool
-
-Dashboard states:
-
-LONG
-
-SHORT
-
-No active position
-
-The Position Tool is downstream of configured execution gates.
-
-Previously identified gating concept:
-
-Signal Change OR Trail Retest
-
-PSAR direction clears
-
-RSI momentum clears
-
-Therefore:
-
-Position Tool state ≠ Smart Signal.
-
-This distinction is essential.
-
-Entry / SL / TP
-
-Previously identified source behavior:
-
-Entry = close
-
-SL = Liquidity Trail
-
-Risk = absolute distance between Entry and SL
-
-Default targets:
-
-TP1 = 1R
-
-TP2 = 1.5R
-
-TP3 = 2R
-
-Externalized display:
-
-POSITION MODEL
-
-Entry: [PRICE]
-SL:    [PRICE]
-
-TP1: [PRICE] — 1R
-TP2: [PRICE] — 1.5R
-TP3: [PRICE] — 2R
-
-These values must be verified against the uploaded V1 source before treating them as immutable.
-
-5. TEMPORAL / SESSION CONTEXT
-
-TRON uses EAT / GMT+3 session mapping.
-
-Previously identified sessions:
-
-Asia: 03:00–07:00
-
-London Open: 07:00–11:00
-
-London Mid: 11:00–15:00
-
-London–New York Overlap: 15:00–19:00
-
-New York PM: 19:00–23:00
-
-Source vocabulary includes:
-
-Asia (H4-1)
-
-LDN Open (H4-2)
-
-LDN Mid (H4-3)
-
-LDN-NY Overlap (H4-4)
-
-NY PM (H4-5)
-
-H4-6 (Dead Zone)
-
-TRON also exposes:
-
-H4 Previous Close
-
-H4 Current Open
-
-H4 Current High
-
-H4 Current Low
-
-H1 Previous Close
-
-Active H4 Session
-
-Active KZ Range
-
-6. IMPORTANT MULTI-TIMEFRAME FACT
-
-The TRON dashboard does not internally contain four independent H1/M15/M5 dashboards.
-
-The dashboard is populated from the current chart timeframe while the source separately pulls M5 RSI/EMA and H4/H1 session context.
-
-Therefore, when the externalized operating model uses:
-
-H1 = macro
-
-M15 = structural
-
-M5 = execution
-
-M1 = precision
-
-that is an external operating methodology built around running/reading TRON across those chart timeframes, not a claim that the dashboard itself contains four independent timeframe engines.
-
-Do not misrepresent this.
-
-7. RECOMMENDED OPERATING TIMEFRAME MODEL
-
-The current user experience points toward:
-
-H1 — Intraday / Macro Analysis
-
-Use H1 to establish the broader intraday environment.
-
-M15 — Tactical / Structural Analysis
-
-Use M15 to understand structural development and tactical context.
-
-M5 — Recommended Execution Timeframe
-
-M5 is the recommended tactical execution timeframe.
-
-M1 — Precision / Optional Execution
-
-M1 may be used for precision, but the user specifically wants to recommend the Alpha Gate when executing on M1, based on accumulated user experience.
-
-This should be presented as an operator recommendation, not as a newly invented technical rule.
-
-The landing page / documentation should communicate:
-
-Recommended workflow: H1 for intraday context → M15 for tactical structure → M5 for execution.
-
-And:
-
-If executing on M1, use the Alpha Gate.
-
-The Alpha Gate wording and actual behavior must be verified against the uploaded V1 source before changing technical documentation.
-
-8. CANONICAL TELEGRAM / MARKET-INTELLIGENCE STRUCTURE
-
-The user's Telegram templates are not generic marketing templates.
-
-They represent how the user personally analyzes the market using TRON.
-
-The externalized SOP should preserve this structure.
-
-H1 MACRO REGIME
-
-📊 TRON ALPHA — H1 MACRO REGIME
-
-💰 XAUUSD: [PRICE]
-🕐 [TIME] EAT
-⏰ [ACTIVE H4 SESSION]
-
-━━━━━━━━━━━━━━
-🌍 MACRO STATE
-━━━━━━━━━━━━━━
-
-📈 EMA Cross: [STATE]
-
-🌊 Liquidity Trail:
-[STATE] @ [LEVEL]
-
-📊 RSI Momentum:
-[STATE] ([VALUE])
-
-🏛 MS Bias:
-[STATE]
-
-🧠 Momentum Trend:
-[STATE]
-
-━━━━━━━━━━━━━━
-📍 H4 / H1 LOCATION
-━━━━━━━━━━━━━━
-
-H4 Prev Close: [VALUE]
-H4 Open: [VALUE]
-H4 High: [VALUE]
-H4 Low: [VALUE]
-H1 Prev Close: [VALUE]
-
-KZ Range: [VALUE]
-
-━━━━━━━━━━━━━━
-🧠 TRON NARRATIVE
-━━━━━━━━━━━━━━
-
-[Compressed narrative derived ONLY from actual states.]
-
-🎯 TRON STATE:
-[BEARISH TREND / BEARISH PULLBACK / TRANSITION / NEUTRAL]
-
-M15 STRUCTURAL TREND
-
-📈 TRON ALPHA — M15 STRUCTURAL
-
-💰 Price: [PRICE]
-⏰ Session: [SESSION]
-
-━━━━━━━━━━━━━━
-🏛 STRUCTURE
-━━━━━━━━━━━━━━
-
-MS Bias:
-[STATE]
-
-Structure:
-[HH / HL / LH / LL]
-
-Break:
-[BOS / CHoCH / NONE]
-
-━━━━━━━━━━━━━━
-🌊 TREND
-━━━━━━━━━━━━━━
-
-EMA:
-[STATE]
-
-Liquidity Trail:
-[STATE] @ [LEVEL]
-
-Momentum Trend:
-[STATE]
-
-━━━━━━━━━━━━━━
-🛰 PSAR
-━━━━━━━━━━━━━━
-
-Smart PSAR:
-[STATE]
-
-PSAR Momentum:
-[BAR]
-
-PSAR MTF:
-[ALIGNED / DIVERGED] ([TF])
-
-━━━━━━━━━━━━━━
-🧠 TRON NARRATIVE
-━━━━━━━━━━━━━━
-
-[Derived from actual H1/M15 relationship.]
-
-M5 EXECUTION ENGINE
-
-⚡ TRON ALPHA — M5 EXECUTION
-
-💰 XAUUSD: [PRICE]
-🕐 [TIME] EAT
-
-━━━━━━━━━━━━━━
-📊 MOMENTUM
-━━━━━━━━━━━━━━
-
-RSI Momentum:
-[STATE] ([VALUE])
-
-Smart Signal:
-[STATE]
-
-Momentum Trend:
-[STATE]
-
-━━━━━━━━━━━━━━
-🏛 STRUCTURE
-━━━━━━━━━━━━━━
-
-MS Bias:
-[STATE]
-
-BOS / CHoCH:
-[VALUE]
-
-━━━━━━━━━━━━━━
-🌊 TRAIL + EMA
-━━━━━━━━━━━━━━
-
-EMA Cross:
-[STATE]
-
-Liquidity Trail:
-[STATE] @ [LEVEL]
-
-━━━━━━━━━━━━━━
-🛰 SMART PSAR
-━━━━━━━━━━━━━━
-
-PSAR:
-[STATE]
-
-PSAR Momentum:
-[BAR]
-
-MTF Context:
-[STATE] ([TF])
-
-━━━━━━━━━━━━━━
-🎯 POSITION TOOL
-━━━━━━━━━━━━━━
-
-Position:
-[LONG / SHORT / NONE]
-
-Entry:
-[VALUE]
-
-SL:
-[VALUE]
-
-TP1:
-[VALUE] — 1R
-
-TP2:
-[VALUE] — 1.5R
-
-TP3:
-[VALUE] — 2R
-
-━━━━━━━━━━━━━━
-🧠 TRON EXECUTION NARRATIVE
-━━━━━━━━━━━━━━
-
-[Actual TRON state.]
-
-⚠️ Smart Signal and Position Tool are separate states.
-
-9. FULL PUBLIC CHANNEL TEMPLATE
-
-🚀 TRON ALPHA — XAUUSD MARKET INTELLIGENCE
-
-📅 [DATE]
-🕐 [TIME] EAT
-💰 Price: [PRICE]
-⏰ Active H4 Session: [SESSION]
-
-━━━━━━━━━━━━━━━━
-🌍 H1 — MACRO REGIME
-━━━━━━━━━━━━━━━━
-
-📈 EMA: [STATE]
-🌊 Trail: [STATE] @ [LEVEL]
-📊 RSI: [STATE] [VALUE]
-🏛 MS Bias: [STATE]
-🧠 Momentum: [STATE]
-
-📍 H4 Prev Close: [VALUE]
-📍 H4 Open: [VALUE]
-📍 H4 High: [VALUE]
-📍 H4 Low: [VALUE]
-📍 H1 Prev Close: [VALUE]
-📏 KZ Range: [VALUE]
-
-🧠 H1 INTELLIGENCE:
-[1–2 sentence TRON narrative]
-
-━━━━━━━━━━━━━━━━
-📐 M15 — STRUCTURAL TREND
-━━━━━━━━━━━━━━━━
-
-🏛 MS Bias: [VALUE]
-📐 Structure: [HH/HL/LH/LL]
-⚡ Break: [BOS/CHoCH/NONE]
-
-📈 EMA: [VALUE]
-🌊 Trail: [VALUE]
-🧠 Momentum: [VALUE]
-
-🛰 PSAR: [VALUE]
-🔗 MTF: [STATE]
-
-🧠 M15 INTELLIGENCE:
-[1–2 sentence narrative]
-
-━━━━━━━━━━━━━━━━
-⚡ M5 — EXECUTION ENGINE
-━━━━━━━━━━━━━━━━
-
-📊 RSI: [VALUE] [STATE]
-🎯 Smart Signal: [STATE]
-
-🏛 MS Bias: [STATE]
-📈 EMA: [STATE]
-🌊 Trail: [STATE] @ [LEVEL]
-
-🛰 PSAR: [STATE]
-📶 PSAR Momentum: [BAR]
-🔗 MTF: [STATE]
-
-🎯 Position: [LONG/SHORT/NONE]
-Entry: [VALUE]
-SL: [VALUE]
-TP1: [VALUE]
-TP2: [VALUE]
-TP3: [VALUE]
-
-🧠 M5 INTELLIGENCE:
-[1–2 sentence execution narrative]
-
-━━━━━━━━━━━━━━━━
-🧩 TRON SYNTHESIS
-━━━━━━━━━━━━━━━━
-
-🌍 MACRO:
-[STATE]
-
-📐 STRUCTURE:
-[STATE]
-
-⚡ EXECUTION:
-[STATE]
-
-🔗 INTERNAL ALIGNMENT:
-[ALIGNED / MIXED / TRANSITION]
-
-🧠 TRON READ:
-[ONE compressed statement derived ONLY from displayed states]
-
-━━━━━━━━━━━━━━━━
-🎯 OPERATOR WATCH
-━━━━━━━━━━━━━━━━
-
-👁 [KEY TRON STATE]
-👁 [KEY TRON LEVEL]
-👁 [KEY TRANSITION]
-
-TRON provides market intelligence.
 The operator remains responsible for the final decision and execution.
 
-10. NARRATIVE ENGINE — DO NOT MAKE THIS ARBITRARY
+TRON should therefore never be positioned as:
 
-Narrative generation must be deterministic and traceable to displayed states.
+* guaranteed profit,
+* guaranteed accuracy,
+* a magical prediction engine,
+* a black-box signal seller,
+* or a substitute for operator judgment.
 
-Example: full bearish internal agreement
+---
 
-Inputs:
+# 3. THE THREE-LAYER ADI ARCHITECTURE
 
-EMA = Bearish
+The ecosystem is built around:
 
-Trail = Bearish
+## ANALYSIS → CAPITAL → EXECUTION
 
-MS Bias = Bearish
+### Analysis
 
-Momentum Trend = Bearish
+TRON reads and organizes market information.
 
-PSAR = Bearish
+This includes:
 
-PSAR MTF = Aligned
+* market structure,
+* momentum,
+* trend alignment,
+* liquidity,
+* sessions,
+* PSAR context,
+* liquidity trail,
+* multi-timeframe context,
+* and position framing.
 
-Output concept:
+### Capital
 
-🔴 BEARISH INTERNAL ALIGNMENT — EMA regime, Liquidity Trail, Market Structure and Momentum Trend are bearish. Smart PSAR is bearish and MTF-aligned. The current TRON state is internally synchronized to the downside.
+The operator applies the framework within their own capital/risk framework.
 
-Example: bearish H1 / bullish M15
+ADI should educate and provide structure rather than make personalized financial decisions for the operator.
 
-Inputs:
+### Execution
 
-H1 = Bearish
+The operator decides whether and how to execute.
 
-M15 = Bullish
+TRON can provide market context and execution-readiness information, but:
 
-Output concept:
+> **TRON provides market intelligence. The operator remains responsible for final decision and execution.**
 
-⚠️ COUNTERTREND STATE — the M15 directional state is opposing the higher-timeframe bearish environment. TRON is showing lower-timeframe strength inside a conflicting macro state.
+---
 
-Example: bearish state but no Smart Signal
+# 4. CURRENT PRODUCT STATE
 
-Inputs:
+## TRON Alpha V1.1
 
-Trail = Bearish
+**V1.1 is the current live baseline.**
 
-MS = Bearish
+TradingView product:
 
-Momentum = Bearish
+**Absolute Dollar Agent + ICT Killzones [EAT]**
 
-Smart Signal = No Signal
+TradingView URL:
 
-Output concept:
+https://www.tradingview.com/script/V1lm98sj-Absolute-Dollar-Agent-ICT-Kill-zones-EAT/
 
-🔴 ESTABLISHED BEARISH STATE — NO NEW SMART EVENT. Current bearish conditions remain active, but TRON is not generating a new Smart Bear event on this bar.
+Short identity:
 
-The important rule:
+**TRON Alpha**
 
-The narrative describes observed state relationships. It does not invent reasons beyond the available TRON data.
+V1.1 is the product that should currently be presented publicly.
 
-11. PRODUCT STATUS — V1 / V1.1
+The old August 2026 positioning such as:
 
-The product is no longer to be presented as an August beta.
+* FREE BETA
+* Free Forever
+* No Trial
+* Beta-only positioning
 
-August 2026 was the beta period.
+is stale unless explicitly reintroduced as part of a future campaign decision.
 
-As of September 2026, the public positioning should reflect that TRON has moved beyond beta.
+V2 is **not the current product**.
 
-The current live product is:
+---
 
-TRON Alpha V1.1
+# 5. V1.1 PRODUCT IDENTITY
 
-The V1.1 update should be presented as a real product update based on user feedback and observed operator experience.
+TRON Alpha V1.1 is a deterministic Pine Script market-intelligence framework combining:
 
-Do not keep stale language such as:
+1. ICT Killzones & Pivots
+2. Absolute Dollar Agent
+3. Smart PSAR Filter
+4. Unified Dashboard
 
-"entering beta"
+The system is designed to make market state visible rather than hiding the reasoning behind a single opaque signal.
 
-"coming soon"
+---
 
-"beta testing"
+# 6. V1.1 CORE COMPONENTS
 
-"wait for V2"
+## 6.1 ICT Killzones & Pivots
 
-"not ready"
+Current EAT session structure:
 
-unless referring historically to the August beta period.
+| Session           |    Time EAT | Code |
+| ----------------- | ----------: | ---- |
+| Asia              | 03:00–07:00 | H4-1 |
+| London Open       | 07:00–11:00 | H4-2 |
+| London Mid        | 11:00–15:00 | H4-3 |
+| London–NY Overlap | 15:00–19:00 | H4-4 |
+| NY PM             | 19:00–23:00 | H4-5 |
 
-12. V1.1 UPDATE LOG FOR THE LOVABLE LANDING PAGE
+Current V1.1 defaults:
 
-The next Lovable update should add an explicit TRON ALPHA V1.1 UPDATE LOG section or equivalent without redesigning the site.
-
-The purpose is to communicate:
-
-TRON has been upgraded based on user feedback.
-
-The key focus:
-
-Explicit BUY / SELL signal labels
-
-V1.1 introduces explicit BUY / SELL entry labels.
-
-These labels are gated by the same underlying TRON logic rather than being arbitrary arrows.
-
-The landing page should explain this accurately from the uploaded source.
-
-M1 Alpha Gate recommendation
-
-Based on user experience:
-
-If executing on M1, use the Alpha Gate.
-
-This is an operator recommendation and should be clearly distinguished from the underlying technical implementation.
-
-Recommended timeframe workflow
-
-H1 → Intraday analysis / macro context
-M15 → Tactical / structural analysis
-M5 → Recommended execution timeframe
-M1 → Precision execution; Alpha Gate recommended
-
-The page should make M5 the recommended execution timeframe while explaining M1 as an optional precision layer.
-
-13. FUTURE PREMIUM PRODUCT
-
-The next major product is:
-
-Absolute Dollar Agent — TRON V2
-
-This is the premium evolution of the TRON ecosystem.
+* Asia enabled
+* London Open enabled
+* London Mid enabled
+* London–NY Overlap enabled
+* NY PM disabled
 
 Important:
 
-V2 should not make V1.1 look useless.
+There are **five H4 session blocks**, not six.
 
-V1.1 is the current live foundation and real-world operating laboratory.
+---
 
-V2 is the next product layer.
+# 7. MARKET STRUCTURE
 
-The user wants a launch countdown on the Lovable landing page.
+V1.1 uses market structure based on:
 
-Current planning date:
+* HH
+* HL
+* LH
+* LL
+* BOS
+* CHoCH
 
-2026-09-03
+Default swing length:
 
-A 25-day countdown from this date points to approximately:
+**15**
 
-2026-09-28
+Dashboard terminology:
 
-This launch date should be treated as a planned/provisional date until explicitly locked.
+**MS Bias**
 
-14. V2 POSITIONING
+V1.1 must not be described as having the full V2 SMC architecture.
 
-The intended message is:
+---
 
-TRON Alpha V1.1 is the current live foundation.
+# 8. RSI MOMENTUM
 
-TRON V2 is the upcoming premium evolution.
+V1.1 defaults:
 
-The user wants operators who have demonstrated:
+* RSI length: 10
+* Bullish threshold: 55
+* Bearish threshold: 48
+* Exhaustion high: 85
+* Exhaustion low: 20
+* Sustain: enabled
+* RSI EMA length: 3
+* M5 confirmation: enabled
+* RSI gate: enabled
 
-consistency;
+The RSI system contributes to the deterministic decision framework.
 
-discipline;
+---
 
-understanding of TRON;
+# 9. SMART SIGNAL
 
-meaningful engagement with the framework;
+V1.1 includes:
 
-to be eligible for future updates / grandfathered access under the launch offer.
+* Smart Bull
+* Smart Bear
+* No Signal
 
-Do not frame this as a subscription-first model.
+The Smart Signal is based on transition/event logic.
 
-15. GRANDFATHER PRICING CONCEPT
+It should not automatically be described as the overall market bias.
 
-After the relevant free access period, the intended grandfather offer is:
+The distinction between:
 
-$49 lifetime access
+**event**
 
-Not monthly subscription.
+and
 
-The intended concept is:
+**bias**
 
-After the trial/evaluation period, eligible operators can lock in grandfather pricing for the quarter at $49 lifetime access to TRON V2.
+must remain clear.
 
-The exact entitlement wording should be finalized before publishing, but the important commercial decision is:
+---
 
-$49 = lifetime, not monthly.
+# 10. EMA / TREND
 
-The offer is intended to reward early operators who actually use and understand TRON.
+V1.1 EMA defaults:
 
-16. CURRENT CUSTOMER JOURNEY
+* EMA 21
+* EMA 55
 
-The customer journey is evolving toward:
+Trend Truth / Momentum Trend combines:
 
-DISCOVERY
-   ↓
-LOVABLE / ADI LANDING PAGE
-   ↓
-COMMUNITY
-   ↓
-TRON ALPHA V1.1
-   ↓
-FREE ACCESS / EVALUATION PERIOD
-   ↓
-LEARN
-   ↓
-UNDERSTAND
-   ↓
-OBSERVE
-   ↓
-PRACTICE / REVIEW
-   ↓
-DEMONSTRATE CONSISTENCY + DISCIPLINE
-   ↓
-GRANDFATHER OFFER
-   ↓
-$49 LIFETIME TRON V2
-   ↓
-TRON V2 PREMIUM
-   ↓
-FUTURE TRON INTELLIGENCE ECOSYSTEM
+* M5 smoothed RSI,
+* five-bar price momentum,
+* EMA direction.
 
-The previous public site had temporarily been changed to "Alpha free forever."
+Each contributes:
 
-That is now superseded by the user's latest product decision for this next phase:
+* +1
+* 0
+* -1
 
-V1.1 is no longer positioned as an August beta; the access/evaluation period and V2 grandfathering are now the intended commercial transition.
+Overall state:
 
-Before changing the live page, reconcile all old "free forever" copy with the latest offer decision.
+* Bullish
+* Bearish
+* Neutral
 
-Do not leave contradictory offers on the page.
+---
 
-17. LOVABLE'S ROLE
+# 11. LIQUIDITY TRAIL
 
-The existing Lovable project is:
+V1.1 defaults:
 
-Absolute Dollar Intelligence Landing
+* Alpha Gate: false
+* MA length: 13
+* ATR length: 14
+* ATR multiplier: 2.0
 
-Project ID:
+The executable source is authoritative.
 
-0bfdc3ca-85e2-41e7-a3dc-9220eec805cc
+A stale code comment suggesting MA 21 must not override the actual executable default of MA 13.
 
-Current project characteristics:
+The Liquidity Trail is central to TRON's visual market-reading framework.
 
-premium dark fintech visual system;
+---
 
-Apple / Linear / Stripe / Vercel / Raycast-inspired;
+# 12. ALPHA GATE
 
-subtle cyber/TRON feel;
+Alpha Gate is **not the V1.1 default**.
 
-existing reusable components;
+It is an optional filter.
 
-public landing page;
+When enabled:
 
-no need for a complete redesign.
+* bullish trail flips are constrained by EMA21 > EMA55
+* bearish trail flips are constrained by EMA21 < EMA55
 
-The explicit instruction is:
+There is an important distinction:
 
-Preserve the current visual system and components. Upgrade the interface and customer journey rather than rebuilding the site.
+### Source truth
 
-The landing page should eventually become the front door to the wider TRON ecosystem.
+Alpha Gate defaults to OFF.
 
-18. CURRENT LOVABLE PAGE STRUCTURE
+### Operator recommendation
 
-The current page has included:
+From live operator experience, Alpha Gate is recommended for **M1 analysis** where the operator wants the trail to remain more resistant to counter-trend flips.
 
-ADI header/navigation
+This recommendation must never be presented as:
 
-Hero
+* a universal rule,
+* a guaranteed improvement,
+* or the source-code default.
 
-TRON explanation
+---
 
-Three Pillars
+# 13. SMART PSAR
 
-TRON in Action
+V1.1 Smart PSAR defaults:
 
-Tape / Broadcast Archive
+* Start: 0.02
+* Increment: 0.02
+* Maximum: 0.20
+* MTF: 5 minutes
+* ATR length: 14
+* Sweep lookback: 5
+* Decay: 50
 
-Channel selection
+PSAR contributes:
 
-Operator's Journey
+* direction,
+* momentum context,
+* MTF context,
+* and filtering.
 
-Access Model / Pricing
+---
 
-Difference / philosophy
+# 14. POSITION TOOL
 
-FAQ
+V1.1 Position Tool:
 
-Final CTA
+* Enabled
+* Entry mode: Signal Change
+* Pin: false
+* TP1: 1R
+* TP2: 1.5R
+* TP3: 2R
+* Extend: 30
+* BUY labels: enabled
+* SELL labels: enabled
 
-Footer
+Entry:
 
-Mobile sticky join
+**Close**
 
-Previous project work removed stale public Execution War Room links and created a public-channel journey.
+Stop framework:
 
-Previous work also changed old trial/beta language toward "Alpha free forever."
+**Liquidity Trail**
 
-That work now needs to be reconciled with the latest September V1.1 → V2 commercial plan.
+The position tool is a visual framing mechanism.
 
-19. LOVABLE PROJECT MUST BE INSPECTED BEFORE MODIFICATION
+It must not be represented as a guarantee that a displayed target will be reached.
 
-Before making another significant edit:
+---
 
-Inspect current files.
+# 15. THE V1.1 BUY / SELL LABELS
 
-Inspect current project knowledge.
+This is an important V1.1 evolution.
 
-Inspect recent Lovable messages/edits.
+## Explicit BUY / SELL labels
 
-Read the actual components being changed.
+V1.1 introduces explicit BUY / SELL labels.
 
-Compare current page copy against this handover.
+These are outputs of the deterministic engine, incorporating conditions such as:
 
-Only then implement.
+* PSAR direction,
+* RSI momentum,
+* and the relevant signal-state logic.
 
-Do not assume the live page equals the latest intended architecture.
+They are **not decorative arrows**.
 
-The project has undergone several iterations.
-
-20. EXISTING LOVABLE HISTORY THAT MATTERS
-
-Important previous work:
-
-August
-
-The landing page was being optimized for:
-
-Telegram
-
-WhatsApp group
-
-WhatsApp channel
-
-community conversion
-
-removing the public Execution War Room link
-
-The Execution War Room is intended to remain private.
-
-It should be presented as a private TRON-access destination, not a public cold-traffic link.
-
-September 2
-
-The Lovable project was updated toward:
-
-TRON Alpha — FREE BETA
-
-Free Forever
-
-no trial
-
-Premium as the upgrade
-
-five-step operator journey
-
-This update was based on an earlier product decision.
-
-This is now superseded where it conflicts with the latest September 3 V1.1 → V2 transition plan.
-
-Do not blindly preserve contradictory copy.
-
-21. COMMERCIAL ARCHITECTURE
-
-The intended ecosystem roles are:
-
-TRON / TradingView
-
-Actual deterministic market-reading engine.
-
-Lovable
-
-Front door + education + TRON interface + future operator dashboard.
-
-Telegram
-
-Broadcast intelligence / market-information channel.
-
-WhatsApp
-
-Community, onboarding, support, direct engagement.
-
-Whop
-
-Commercial/access layer for the premium product.
-
-Whop is being considered as the preferred checkout/access layer rather than building a full commerce system into Lovable.
-
-Do not turn Lovable into a checkout platform unnecessarily.
-
-22. FUTURE TRON WEB / LIVE ARCHITECTURE
-
-The long-term technical direction is:
-
-TRADINGVIEW
-     ↓
-TRON PINE SCRIPT
-     ↓
-TRADINGVIEW ALERT / WEBHOOK
-     ↓
-TRON EVENT INGESTION
-     ↓
-TRON STATE / EVENT NORMALIZATION
-     ↓
-TRON AUGMENTED INTELLIGENCE
-     ↓
-┌───────────────┬────────────────┬────────────────┐
-│               │                │                │
-TRON LIVE      TELEGRAM         ARCHIVE          OTHER UI
-│
-LOVABLE
-
-The critical architecture principle:
-
-Do not duplicate the TRON brain unless there is a demonstrated technical reason to do so.
-
-Initially, TradingView/Pine remains the source of deterministic TRON state.
-
-The external layer receives those observations and externalizes them.
-
-23. WEBHOOK CONCEPT
-
-A live TradingView alert should eventually be able to feed the external TRON layer.
-
-Conceptually:
-
-TRON Pine Script
-      ↓
-TradingView Alert
-      ↓
-Webhook endpoint
-      ↓
-TRON event parser
-      ↓
-State/event object
-      ↓
-Narrative/state engine
-      ↓
-Lovable TRON Live
-      ↓
-Telegram / archive
-
-The first proof-of-concept should be deliberately small:
-
-Can a live TRON alert leave TradingView, arrive at the backend, preserve the exact TRON state, and produce a faithful externalized TRON update?
-
-Do not start by building a complete autonomous trading platform.
-
-24. TRON AI'S EVENT MODEL
-
-A useful conceptual event object is:
-
-timestamp
-symbol
-timeframe
-session
-event_type
-rsi_state
-rsi_value
-smart_signal
-ms_bias
-structure_state
-break_state
-ema_state
-liquidity_trail_state
-liquidity_trail_level
-psar_state
-psar_mtf_state
-psar_momentum
-position_state
-entry
-sl
-tp1
-tp2
-tp3
-
-The exact payload must ultimately be based on what the Pine alert can actually provide.
-
-Do not invent fields that the source cannot supply.
-
-25. OPPORTUNITY MONITORING
-
-The future intelligence layer should understand that a market opportunity is not necessarily a single alert.
-
-Price develops through states.
-
-Therefore TRON AI should eventually maintain a timeline such as:
-
-STATE A
-↓
-STATE CHANGE
-↓
-NEW TRON EVENT
-↓
-CONTEXT UPDATE
-↓
-STRUCTURAL DEVELOPMENT
-↓
-EXECUTION-STATE DEVELOPMENT
-↓
-CONFIRMATION / FAILURE / TRANSITION
-
-This lets the system communicate:
-
-what TRON saw;
-
-what changed;
-
-what remains unchanged;
-
-what is developing;
-
-what transition matters next.
-
-It should not invent a trade because a model "feels" one is coming.
-
-26. EXAMPLE OF AUGMENTED INTELLIGENCE
-
-Suppose:
-
-H1 = Bearish
-M15 = Bearish
-M5 = Bullish
-
-TRON AI can identify:
-
-Countertrend lower-timeframe development inside a bearish higher-timeframe environment.
-
-If later:
-
-M15 = CHoCH
-M5 = Bullish
-PSAR = Bullish
-PSAR MTF = Aligned
-
-the intelligence layer can update the existing analysis:
-
-The lower-timeframe transition has developed into a structural change on M15 while PSAR remains aligned.
-
-The system is tracking market development, not generating a prediction.
-
-27. THE "TRON TAPE"
-
-The existing landing page contains a broadcast archive / tape concept.
-
-This should eventually become more powerful.
-
-Every externalized TRON event can become part of a chronological record:
-
-TIME
-SESSION
-SYMBOL
-TIMEFRAME
-TRON EVENT
-STATE
-CONTEXT
-NARRATIVE
-
-This creates an auditable history of what TRON actually reported.
-
-The principle:
-
-No rewriting the tape after the fact.
-
-The archive should reflect the actual event chronology.
-
-28. DATA SOURCES
-
-TradingView is the first and most important source because it already executes the actual TRON Pine logic.
-
-Other market-data sources may eventually be integrated where necessary.
-
-Deriv data was discussed as a possible additional source, particularly where instrument-specific live data may matter.
+The website should explain this distinction clearly.
 
 However:
 
-Do not build a second market engine just because an additional data source exists.
+A BUY or SELL label must not be marketed as:
 
-First determine:
+* a guaranteed winning signal,
+* a prediction,
+* or an instruction that overrides operator judgment.
 
-what TradingView already provides;
+---
 
-what TRON already calculates;
+# 16. V1.1 RECOMMENDED WORKFLOW
 
-what the webhook can transmit;
+The central public workflow should be:
 
-what genuinely missing data needs another source.
+# H1 → M15 → M5
 
-29. V1.1 UPDATE PAGE — PROPOSED INFORMATION HIERARCHY
+### H1 — Macro View
 
-The Lovable landing page should eventually communicate:
+Purpose:
 
-CURRENT
+**Macro context**
 
-TRON Alpha V1.1
+Observe:
 
-WHAT CHANGED
+* broad trend regime,
+* EMA relationship,
+* liquidity-trail context,
+* RSI momentum,
+* market structure,
+* higher-timeframe location,
+* session context.
 
-explicit BUY / SELL labels;
+### M15 — Tactical / Structural View
 
-user-feedback-driven refinement;
+Purpose:
 
-execution workflow clarification;
+**Tactical structure**
 
-M1 Alpha Gate recommendation;
+Observe:
 
-M5 recommended execution timeframe;
+* structure,
+* BOS / CHoCH,
+* EMA,
+* trail,
+* momentum,
+* PSAR,
+* MTF context,
+* session relationship.
 
-H1/M15/M5 operating framework.
+### M5 — Execution Context
 
-WHAT TRON IS
+Purpose:
 
-Deterministic market intelligence, not a prediction service.
+**Execution context**
 
-WHAT COMES NEXT
+Observe:
 
-TRON V2 — Absolute Dollar Agent
+* momentum,
+* Smart Signal,
+* market structure,
+* trail,
+* EMA,
+* PSAR,
+* position framing.
 
-COUNTDOWN
+The wording should remain:
 
-25-day launch countdown, targeting approximately September 28, 2026, subject to final confirmation.
+> H1 = macro
+> M15 = tactical / structural
+> M5 = execution context
 
-EARLY OPERATOR OFFER
+This describes how TRON is intended to be read.
 
-After the applicable evaluation period:
+It is not a promise of trade outcomes.
 
-$49 lifetime grandfather access
+---
 
-No monthly subscription as the grandfather offer.
+# 17. M1 OPERATOR WORKFLOW
 
-30. IMPORTANT BRAND LANGUAGE
+M1 is a precision view rather than the primary macro framework.
 
-Preferred:
+When operating on M1:
 
-TRON
+> **Enable Alpha Gate** as an operator recommendation based on live use.
 
-TRON Alpha
+The purpose is to help keep the Liquidity Trail more stable against counter-trend flips.
 
-TRON Alpha V1.1
+Smart Signals can also be used in the M1 context.
 
-Absolute Dollar Agent
+Again:
 
-TRON V2
+* Alpha Gate is optional.
+* Alpha Gate is not the V1.1 default.
+* It is an operator recommendation.
+* It is not a guaranteed optimization.
 
-Absolute Dollar Intelligence
+---
 
-market intelligence
+# 18. V1.1 UPDATE LOG
 
-market reading
+## What's new in V1.1
 
-decision support
+The website should contain a dedicated section immediately after **TRON in action** and before **The Tape**.
 
-deterministic
+### Explicit BUY / SELL labels
 
-augmented intelligence
+Outputs of the deterministic engine, gated by PSAR direction and RSI momentum.
 
-operator
+They are not arrows for their own sake.
 
-analysis
+### Recommended workflow: H1 → M15 → M5
 
-observe
+Macro context → tactical structure → execution context.
 
-execution
+### M1 operator recommendation
 
-state
+For M1 analysis, enable Alpha Gate based on live operator experience. It helps hold the Liquidity Trail flat against counter-trend flips.
 
-transition
+This must be clearly presented as an operator recommendation rather than a universal rule or source default.
 
-alignment
+### Beyond beta
 
-internal alignment
+Refined from real operator feedback.
 
-developing opportunity
+Beyond beta.
 
-market state
+---
+
+# 19. V1.1 DASHBOARD
+
+V1.1 dashboard contains approximately 22 information rows, including:
+
+* RSI Momentum
+* Smart Signal
+* MS Bias
+* Momentum Trend
+* EMA Cross
+* Liquidity Trail
+* Smart PSAR
+* PSAR Momentum
+* PSAR MTF Context
+* Position
+* Entry / SL
+* TP1
+* TP2
+* TP3
+* Active H4 Session
+* H4 Previous Close
+* H4 Current Open
+* H4 Current High / Low
+* H1 Previous Close
+* Active KZ Range
+
+The dashboard is important to TRON's identity because it exposes the information behind the visual output.
+
+---
+
+# 20. V1.1 ALERTS
+
+Current alert categories include:
+
+* RSI Bullish Breakout
+* RSI Bearish Breakout
+* Smart Bull Momentum
+* Smart Bear Momentum
+* Trail Bull Signal
+* Trail Bear Signal
+* Bull Trail Retest Entry
+* Bear Trail Retest Entry
+* Smart PSAR Flip
+
+Important:
+
+V1.1 does **not** contain dedicated alert conditions named:
+
+* Tron Buy Entry
+* Tron Sell Entry
+
+Those are V2 concepts.
+
+---
+
+# 21. V2
+
+## TRON V2 IS FUTURE — NOT CURRENT
+
+V2 is the next evolution of the TRON architecture.
+
+It must never be presented as currently live.
+
+V2 includes substantially deeper structure and liquidity intelligence.
+
+### V2 modules
+
+#### A — ICT Killzones & Pivots
+
+#### B — Absolute Dollar SMC
+
+Including:
+
+* full market structure,
+* BOS / CHoCH,
+* order blocks,
+* FVG,
+* EQH / EQL,
+* premium / discount,
+* strong / weak highs and lows.
+
+#### C — Liquidity Suite
+
+Including:
+
+* buy-side liquidity,
+* sell-side liquidity,
+* volume profiles,
+* liquidity-area logic.
+
+#### D — Smart PSAR & Agent
+
+Including:
+
+* RSI Momentum,
+* Smart Signals,
+* PSAR,
+* Liquidity Trail.
+
+---
+
+# 22. V2 DIFFERENCES
+
+V2 has:
+
+* SMC Bias rather than V1's MS Bias
+* deeper market structure
+* internal and swing order blocks
+* equal highs/lows
+* optional FVG
+* premium/discount
+* liquidity suite
+* dedicated TRON Buy Entry
+* dedicated TRON Sell Entry
+
+V2 default Position Tool BUY/SELL labels are false.
+
+These V2 features must **never be retroactively attributed to V1.1.**
+
+---
+
+# 23. V2 COUNTDOWN
+
+Current planned release:
+
+> **September 28, 2026 — provisional.**
+
+This is a planned target, not a guaranteed release date.
+
+V2 remains:
+
+* not live,
+* not included in V1.1,
+* and subject to development/testing.
+
+### Founding 50
+
+Current planned founding pricing:
+
+> **$49 lifetime**
+
+The exact final founder terms must remain subject to explicit confirmation.
+
+---
+
+# 24. COMMERCIAL ARCHITECTURE
+
+The product ecosystem now has a deliberate separation of responsibilities.
+
+# Lovable = ADI FRONT DOOR
+
+Lovable exists to:
+
+* introduce ADI,
+* explain TRON,
+* establish trust,
+* demonstrate the product,
+* educate,
+* guide visitors into onboarding,
+* and direct them toward the appropriate next step.
+
+Lovable should **not become the checkout system**.
+
+---
+
+# WhatsApp = ONBOARDING / COMMUNITY DOOR
+
+WhatsApp is where the prospective operator can:
+
+* enter the community,
+* receive onboarding,
+* ask questions,
+* understand the framework,
+* receive support,
+* and progress through the evaluation/onboarding journey.
+
+---
+
+# TradingView = V1.1 PRODUCT DELIVERY
+
+TradingView is where TRON Alpha V1.1 is actually experienced.
+
+Current TradingView product:
+
+**Absolute Dollar Agent + ICT Killzones [EAT]**
+
+---
+
+# Whop = COMMERCIAL / ACCESS DOOR
+
+Whop should own:
+
+* commercial purchase,
+* entitlement,
+* access management,
+* paid-product experience,
+* and eventually the transition into premium access.
+
+Lovable should not try to duplicate Whop's commercial function.
+
+---
+
+# 25. TARGET FUNNEL
+
+The intended ecosystem is:
+
+**Instagram / Facebook / WhatsApp Status**
+
+↓
+
+**ADI / Lovable**
+
+↓
+
+**WhatsApp onboarding**
+
+↓
+
+**TRON Alpha V1.1 evaluation**
+
+↓
+
+**TradingView V1.1 experience**
+
+↓
+
+**Whop commercial access**
+
+↓
+
+**V2 evolution**
+
+The fundamental distinction is:
+
+> **Lovable is the front door.
+> Whop is the commercial/access door.**
+
+---
+
+# 26. THE 7-DAY V1.1 EVALUATION
+
+A planned onboarding journey includes a **7-day free V1.1 evaluation**.
+
+This duration should only become public website copy once it is formally approved as the actual offer.
+
+The intended journey is:
+
+### Day 1
+
+Understand TRON.
+
+### Day 2
+
+Understand the H1 → M15 → M5 framework.
+
+### Day 3
+
+Observe TRON across instruments.
+
+### Day 4
+
+Study structure, momentum and trail interaction.
+
+### Day 5
+
+Study execution-context reading.
+
+### Day 6
+
+Review observations and questions.
+
+### Day 7
+
+Evaluate whether the framework fits the operator.
+
+The goal is not:
+
+> “Take signals for seven days.”
+
+The goal is:
+
+> **Experience the framework and understand how TRON reads the market.**
+
+---
+
+# 27. POST-EVALUATION COMMERCIAL PATH
+
+After the evaluation period, the intended commercial path is:
+
+**V1.1 full access**
+
+with a potential grandfather/founding offer.
+
+Current working concept:
+
+> **$24.50 / 50% off the $49 lifetime anchor**
+
+for qualifying operators during the V1.1 → V2 transition.
+
+This must not be hard-coded as a permanent public offer until the exact commercial terms are approved.
+
+---
+
+# 28. FOUNDING 50
+
+There is a distinction between:
+
+### Public V1.1 pricing
+
+and
+
+### Founding 50 / grandfather pricing
+
+The Founding 50 should be treated as a special cohort.
+
+Current planned anchor:
+
+**$49 lifetime**
+
+The precise grandfather mechanism and timing must be explicitly confirmed before implementation.
+
+---
+
+# 29. AFFILIATE / BROKER ECOSYSTEM
+
+The broader ecosystem may eventually point operators toward relevant infrastructure for the instruments they choose to study.
+
+Potential ecosystem references include:
+
+* Deriv
+* TradingView
+* HFM
+* Pepperstone
+* Bybit
+* other appropriate platforms
+
+However:
+
+**The website should not become a broker-deposit funnel.**
+
+Broker references must be presented carefully and transparently.
+
+Affiliate relationships should be disclosed.
+
+No copy should imply:
+
+* guaranteed profitability,
+* guaranteed execution quality,
+* guaranteed funding,
+* or that depositing money is required to become successful.
+
+---
+
+# 30. ASSET-AGNOSTIC POSITIONING
+
+TRON is intended to be **asset agnostic**.
+
+The underlying market-reading framework can be applied across different instruments and environments, subject to the capabilities and data available on the relevant platform.
+
+Potential examples include:
+
+* Gold
+* Forex / CFDs
+* Synthetic Indices
+* Crypto
+* other supported TradingView instruments
+
+The framework should therefore be positioned around **market structure and intelligence**, rather than around a single asset.
+
+---
+
+# 31. EXAMPLE MULTI-TIMEFRAME APPLICATIONS
+
+These are framework examples, not trading instructions.
+
+## Intraday / CFD / Gold
+
+Potential conceptual workflow:
+
+**H1 → macro view**
+
+**M15 → tactical structure**
+
+**M5 → execution context**
+
+The purpose is to maintain context before examining lower-timeframe conditions.
+
+---
+
+## Synthetic Indices
+
+For lower-timeframe analysis, the operator may use:
+
+**M5**
+
+with:
+
+* Smart Signals,
+* BUY / SELL labels,
+* Liquidity Trail,
+* momentum.
+
+On:
+
+**M1**
+
+the operator may use:
+
+* Alpha Gate,
+* Smart Signals,
+* Liquidity Trail,
+* momentum.
+
+This is an operator workflow observation, not a guarantee.
+
+---
+
+## Crypto
+
+A broader structure can be:
+
+**H4 → macro context**
+
+**M15 → tactical / execution context**
+
+**M5 → entry context**
+
+Again, this is a conceptual framework for reading multiple timeframes rather than an instruction to trade.
+
+---
+
+# 32. THE WEBSITE
+
+## Current Website
+
+Project:
+
+**absolute-dollar-intelligence**
+
+Lovable project ID:
+
+`0bfdc3ca-85e2-41e7-a3dc-9220eec805cc`
+
+Production:
+
+https://absolute-dollar-intelligence.lovable.app
+
+TradingView:
+
+https://www.tradingview.com/script/V1lm98sj-Absolute-Dollar-Agent-ICT-Kill-zones-EAT/
+
+---
+
+# 33. WEBSITE DESIGN PHILOSOPHY
+
+The existing visual identity is important.
+
+It is:
+
+* premium,
+* dark,
+* modern,
+* fintech-inspired,
+* clean,
+* technically sophisticated,
+* subtly cyber/TRON,
+* but not scammy.
+
+Influence can feel similar to:
+
+* Apple
+* Linear
+* Stripe
+* Vercel
+* Raycast
+
+without becoming a copy of them.
+
+### IMPORTANT
+
+Do not redesign the established visual language simply because a new AI agent thinks it can make the page “better.”
+
+The goal is:
+
+> **Improve clarity and conversion without destroying authenticity.**
+
+---
+
+# 34. AUTHENTICITY PRINCIPLE
+
+A major concern identified during the website iteration:
+
+> **The page can become too conversational / too polished / too explanatory and lose the authenticity of the original builder voice.**
+
+The website must still sound like:
+
+**Emmanuel built TRON because he actually went through the process of developing, testing, refining and learning from it.**
+
+Not like:
+
+> “Here is an AI-generated fintech SaaS product description.”
+
+The distinction matters.
+
+TRON should feel:
+
+* engineered,
+* tested,
+* observed,
+* opinionated,
+* transparent,
+* and human.
+
+The copy should not become sterile corporate marketing.
+
+---
+
+# 35. CURRENT WEBSITE STRUCTURE
+
+Existing components include:
+
+* Header / Nav
+* Hero
+* BetaBanner
+* Pillars
+* Tron
+* TronInAction
+* The Tape / Broadcast Archive
+* JoinChannels
+* TrustBar
+* HowItWorks
+* Pricing
+* FAQ
+* FinalCTA
+* Footer
+* StickyJoin
+
+---
+
+# 36. HERO
+
+The Hero should establish immediately:
+
+### What is TRON?
+
+A market-intelligence framework.
+
+### What is current?
+
+TRON Alpha V1.1.
+
+### What does the operator do?
+
+Learn → understand → observe → make their own decision.
+
+### Primary CTA
+
+WhatsApp onboarding.
+
+### Secondary CTA
+
+TradingView V1.1.
+
+The Hero must not claim:
+
+* Free Forever,
+* FREE BETA,
+* guaranteed results,
+* Prop Firm Ready,
+* or unsupported performance.
+
+---
+
+# 37. “TRON IN ACTION”
+
+This section is valuable because it demonstrates the product rather than merely describing it.
+
+Current example contexts include:
+
+### XAUUSD
+
+Pepperstone / Asia session context.
+
+### Volatility 75 (1s)
+
+Deriv / NY Overlap context.
+
+The images should demonstrate:
+
+* structure,
+* momentum,
+* PSAR,
+* trail,
+* position framing,
+* session context,
+* dashboard information.
+
+They should not be presented as proof of profitability.
+
+---
+
+# 38. “WHAT'S NEW IN V1.1”
+
+This section belongs:
+
+**AFTER TRON IN ACTION**
+
+and:
+
+**BEFORE THE TAPE**
+
+It should communicate that V1.1 is a meaningful evolution rather than merely a renamed beta.
+
+Required ideas:
+
+### Explicit BUY / SELL labels
+
+Deterministic outputs gated by relevant conditions including PSAR direction and RSI momentum.
+
+### H1 → M15 → M5
+
+The recommended multi-timeframe operating framework.
+
+### M1 + Alpha Gate
+
+Operator recommendation based on live use.
+
+### Beyond beta
+
+Refined from real operator feedback.
+
+The tone should feel like:
+
+> “Here is what changed because we actually used the thing.”
+
+not:
+
+> “Version 1.1 contains four exciting new features!”
+
+---
+
+# 39. THE TAPE
+
+The Tape / Broadcast Archive should demonstrate TRON intelligence in action.
+
+The canonical intelligence architecture is:
+
+### H1 Macro Regime
+
+* price/time/session
+* EMA Cross
+* Liquidity Trail
+* RSI Momentum
+* MS/SMC Bias
+* Momentum Trend
+* H4/H1 location
+* TRON narrative
+* state
+
+### M15 Structural
+
+* price/session
+* MS Bias
+* HH/HL/LH/LL
+* BOS/CHoCH
+* EMA
+* Trail
+* Momentum
+* PSAR
+* PSAR Momentum
+* MTF
+* narrative
+
+### M5 Execution Context
+
+* price/time
+* RSI
+* Smart Signal
+* Momentum Trend
+* MS Bias
+* BOS/CHoCH
+* Trail
+* EMA
+* PSAR
+* PSAR Momentum
+* MTF
+* Position Tool
+* Entry
+* SL
+* TP1/TP2/TP3
+* narrative
+
+The narrative must derive from actual state relationships.
+
+Never invent:
+
+* probabilities,
+* win rates,
+* certainty,
+* targets,
+* or market outcomes.
+
+---
+
+# 40. COMMUNITY ARCHITECTURE
+
+## Telegram
+
+Used for:
+
+* broadcast,
+* market intelligence,
+* structured drops,
+* H1/M15/M5 analysis.
+
+## WhatsApp Group
+
+Used for:
+
+* conversation,
+* onboarding,
+* support,
+* questions,
+* community interaction.
+
+## WhatsApp Channel
+
+Used for:
+
+* lower-noise broadcast,
+* announcements,
+* market intelligence.
+
+The Execution War Room should remain private and access-controlled.
+
+It should not be casually presented as a public free channel.
+
+---
+
+# 41. CTA HIERARCHY
+
+The website should not have competing primary actions everywhere.
+
+Current preferred hierarchy:
+
+### Primary
+
+**Start V1.1 Onboarding → WhatsApp**
+
+### Secondary
+
+**View TRON Alpha V1.1 → TradingView**
+
+### Supporting
+
+Telegram / WhatsApp Channel where appropriate.
+
+The CTA hierarchy should make sense particularly on mobile because campaign traffic is expected to come heavily from:
+
+* Instagram,
+* Facebook,
+* WhatsApp Status.
+
+---
+
+# 42. STICKY MOBILE CTA
+
+The mobile sticky CTA should prioritize:
+
+**WhatsApp onboarding**
+
+with:
+
+**TradingView V1.1**
+
+as the secondary action.
+
+The sticky bar should not overwhelm the actual content.
+
+---
+
+# 43. PRICING
+
+Current standard commercial anchor:
+
+# $49 lifetime
+
+The website may communicate:
+
+> TRON Alpha V1.1 — Lifetime Access
+
+without inventing additional terms.
+
+The $24.50 / 50%-off concept belongs to a controlled promotional/founding transition offer.
+
+Do not permanently hard-code:
+
+* discount countdowns,
+* fake scarcity,
+* unsupported trial lengths,
+* or “only X remaining” unless those are real.
+
+---
+
+# 44. FAQ PRINCIPLES
+
+FAQ should answer:
+
+### Is TRON a signal service?
+
+No.
+
+TRON is a market-intelligence / decision-support framework.
+
+### What is V1.1?
+
+The current live TRON Alpha release.
+
+### What is V2?
+
+The future premium evolution.
+
+### Is V2 live?
+
+No.
+
+### Does V2 come with V1.1?
+
+Not automatically.
+
+### How do I start?
+
+Begin with the onboarding/evaluation path.
+
+### Why WhatsApp?
+
+Because onboarding and operator support happen there.
+
+### What is the relationship with TradingView?
+
+TradingView is where TRON Alpha V1.1 is experienced.
+
+### What is Whop?
+
+Whop is the commercial/access layer.
+
+Avoid unsupported claims involving:
+
+* prop-firm approval,
+* guaranteed funding,
+* guaranteed performance,
+* or broker outcomes.
+
+---
+
+# 45. CLAIMS DISCIPLINE
+
+All public claims should be classified as:
+
+## Source-derived
+
+Directly supported by the Pine implementation.
+
+## Explicit product decision
+
+A decision made by the product owner.
+
+## Operator observation
+
+Something learned from actual use.
+
+## Planned
+
+Future direction.
+
+## Provisional
+
+A target that may change.
+
+The site must never blur these categories.
+
+For example:
+
+> “Alpha Gate is enabled by default.”
+
+would be false.
+
+Correct:
+
+> “Alpha Gate is optional; operator experience has led to a recommendation for M1 use.”
+
+---
+
+# 46. WHAT MUST NEVER BE INVENTED
+
+Do not invent:
+
+* win rates,
+* accuracy percentages,
+* profitability statistics,
+* guaranteed outcomes,
+* backtest results,
+* broker partnerships,
+* funding partnerships,
+* Whop URLs,
+* trial duration,
+* founder terms,
+* V2 features in V1.1,
+* V2 release certainty,
+* user counts,
+* performance claims,
+* or testimonials.
+
+If something is unknown:
+
+**mark it as unresolved.**
+
+---
+
+# 47. SOURCE-OF-TRUTH HIERARCHY
+
+When resolving contradictions, use this hierarchy:
+
+1. Uploaded Pine source
+2. Explicit current product decisions
+3. Version-specific source-derived parameter inventory
+4. Externalized TRON dictionary
+5. Canonical Telegram / WhatsApp analysis templates
+6. Current Lovable implementation
+7. Generic AI assumptions
+
+Generic AI assumptions are last.
+
+---
+
+# 48. TECHNICAL SOURCE TRUTH
+
+V1.1:
+
+* Pine Script v6
+* max days: 2
+* timeframe limit: 15m
+* timezone: GMT+3
+* await bar confirmation: true
+
+The source code is authoritative over comments.
+
+Where comments and executable logic disagree:
+
+> **Executable logic wins.**
+
+---
+
+# 49. DOLLAR / RISK MATH
+
+TRON has historically used:
+
+`syminfo.pointvalue`
+
+for dollar-risk / lot-sizing calculations.
+
+There is a known concern:
+
+> TradingView feeds can expose inconsistent point-value behavior across instruments/brokers.
+
+Therefore dollar calculations should not be presented as universally equivalent to every broker's MT5 contract specification.
+
+Any future risk-sizing implementation must account for instrument-specific contract specifications.
+
+---
+
+# 50. CURRENT RESEARCH PHILOSOPHY
+
+TRON is not being redesigned simply to become a conventional trading strategy.
+
+The research objective is:
+
+> **Optimize parameters and configuration without destroying core logic.**
+
+TRON's purpose is:
+
+> **READ PRICE.**
+
+The research framework should therefore investigate:
+
+* parameter robustness,
+* multi-timeframe behavior,
+* session behavior,
+* market structure,
+* momentum,
+* liquidity,
+* PSAR,
+* trail behavior,
+* interactions,
+* sensitivity,
+* regime dependence,
+* and forward robustness.
+
+---
+
+# 51. PARAMETER RESEARCH
+
+Research should examine robust regions rather than obsess over a single magical number.
+
+Primary contexts:
+
+### H1
+
+Macro regime.
+
+### M15
+
+Structural context.
+
+### M5
+
+Execution context.
+
+### M1
+
+Precision.
+
+Potential configuration families:
+
+* Conservative
+* Balanced
+* Responsive
+* High Momentum
+
+These are research configurations, not promises of superiority.
+
+---
+
+# 52. ROBUSTNESS
+
+Future research should include:
+
+* backtesting,
+* forward testing,
+* Monte Carlo,
+* sensitivity analysis,
+* parameter perturbation,
+* regime analysis,
+* walk-forward testing,
+* and interaction analysis.
+
+A parameter is not considered “better” merely because it produced the highest historical result.
+
+The question is:
+
+> **Does the behavior remain coherent when conditions change?**
+
+---
+
+# 53. TRON NARRATIVE ENGINE
+
+The TRON narrative must always be derived from observable state.
+
+Example structure:
+
+**Macro regime → structural context → momentum → liquidity/trail → PSAR → execution context**
+
+The narrative should explain relationships.
+
+It should not fabricate certainty.
+
+Bad:
+
+> “TRON is 87% likely to win.”
+
+Good:
+
+> “H1 structure remains bearish while M15 momentum is recovering; M5 has not yet produced aligned execution context.”
+
+---
+
+# 54. OPERATOR PHILOSOPHY
+
+The operator should learn to answer:
+
+* What is the market doing?
+* Where is price relative to structure?
+* What is momentum doing?
+* What is the broader regime?
+* What session are we in?
+* Is the lower timeframe aligned?
+* What information is missing?
+* Is there a contradiction?
+* Is there enough context to make a decision?
+
+TRON should help make those questions visible.
+
+---
+
+# 55. MARKETING CAMPAIGN
+
+Initial campaign objective:
+
+**Instagram / Facebook / WhatsApp Status → Lovable → WhatsApp → V1.1 evaluation → conversion**
+
+The campaign should not lead with:
+
+> “BUY THIS INDICATOR.”
+
+It should lead with:
+
+> **“See how TRON reads the market.”**
+
+The website then converts curiosity into onboarding.
+
+---
+
+# 56. CAMPAIGN BUDGET
+
+The current experimental idea is approximately:
+
+* $10 advertising budget
+* Lovable Pro approximately $25
+* total initial spend approximately $35–$40
+
+The objective is not to pretend this is a statistically meaningful acquisition campaign.
+
+It is a small validation experiment.
+
+The question is:
+
+> Can a small amount of qualified traffic move through the funnel and produce at least one meaningful conversion?
+
+---
+
+# 57. CURRENT WEBSITE ANALYTICS
+
+Observed period:
+
+**2026-08-05 → 2026-09-04**
+
+Approximate totals:
+
+* Visitors: 36
+* Pageviews: 60
+* Pageviews / visit: 1.67
+* Bounce: approximately 77
+* Desktop: 23
+* Mobile: 13
+
+Traffic sources:
+
+* Direct: 30
+* Lovable: 4
+* Facebook: 2
+
+Countries:
+
+* Kenya: 28
+* China: 4
+* Unknown: 2
+* United States: 2
+
+Conclusion:
+
+The dataset is too small to make strong conversion conclusions.
+
+Therefore:
+
+> **Fix positioning and funnel clarity before drawing statistical conclusions from conversion data.**
+
+---
+
+# 58. THE IMPORTANT LESSON FROM THE WEBSITE ITERATION
+
+The website can technically become “better” while commercially becoming worse.
+
+A page can become:
+
+* cleaner,
+* more polished,
+* more conversational,
+* more explanatory,
+
+and simultaneously lose the founder's authenticity.
+
+Therefore:
+
+> **Conversion optimization must not erase identity.**
+
+The correct objective is:
+
+# Authenticity + clarity + conversion
+
+Not:
+
+# Maximum marketing polish
+
+---
+
+# 59. LOVABLE PROJECT KNOWLEDGE
+
+The Lovable project previously had effectively empty project knowledge.
+
+That created a major risk:
+
+> The AI could edit the website without understanding the product's actual source-of-truth hierarchy.
+
+Persistent project knowledge has therefore been established around:
+
+* V1.1 current/live
+* V2 future
+* no invented TRON features
+* source hierarchy
+* commercial architecture
+* $49 lifetime anchor
+* claims discipline
+* design preservation
+* WhatsApp onboarding
+* Whop commercial access.
+
+This knowledge should be maintained as the product evolves.
+
+---
+
+# 60. LOVABLE OPERATING RULE
+
+From this point forward:
+
+## NO BLIND EDITING.
+
+The workflow should be:
+
+1. Review the proposed change.
+2. Discuss it.
+3. Check it against the Master MD.
+4. Decide whether it improves the product.
+5. Only then send an implementation prompt to Lovable.
+
+The product owner retains final control.
+
+Lovable is an implementation tool, not the product strategist.
+
+---
+
+# 61. WEBSITE CHANGE CONTROL
+
+Before changing the website, ask:
+
+### Does this change improve:
+
+* clarity?
+* authenticity?
+* trust?
+* conversion?
+* product accuracy?
+
+If not, do not make it.
+
+### Does it contradict:
+
+* V1.1 source truth?
+* V2 boundaries?
+* commercial architecture?
+* claims discipline?
+
+If yes, do not make it.
+
+### Does it require a new product decision?
+
+If yes:
+
+**pause and resolve the decision before implementation.**
+
+---
+
+# 62. WHOP STORE SPECIFICATION
+
+Whop should eventually contain:
+
+## 1. Hero
+
+TRON Alpha V1.1 as the current live market-intelligence product.
+
+## 2. What You Get
+
+The actual entitlement/access included.
+
+## 3. Who It Is For
+
+Operators interested in structured market reading and decision support.
+
+## 4. What V1.1 Includes
+
+Only source-accurate features.
+
+## 5. How Access Works
+
+Purchase / entitlement → onboarding → TradingView V1.1 access/resources.
+
+## 6. Price
+
+Current anchor:
+
+**$49 lifetime**
+
+unless explicitly changed.
+
+## 7. Founding 50
+
+Separate grandfather/founding treatment.
+
+## 8. V2
+
+Future evolution.
+
+Not included unless explicitly stated.
+
+## 9. Expectations
+
+No guaranteed results.
+
+No fabricated performance.
+
+TRON is decision support.
+
+## 10. CTA
+
+Obtain access through Whop.
+
+---
+
+# 63. WHOP URL
+
+The actual Whop URL is currently an unresolved external decision.
+
+### DO NOT INVENT IT.
+
+Once the real Whop page exists, update:
+
+* Hero secondary CTA if appropriate
+* Pricing CTA
+* Final CTA
+* Footer
+* relevant product/access links
+
+---
+
+# 64. CURRENT OPEN DECISIONS
+
+The following must be explicitly resolved before hard-coding:
+
+### 1. Exact seven-day evaluation mechanics
+
+Confirmed conceptually, but public implementation should wait for final offer confirmation.
+
+### 2. V1.1 post-evaluation price
+
+Current working concept:
+
+**$24.50**
+
+but must be explicitly approved as the actual commercial offer.
+
+### 3. Founding 50 mechanics
+
+The $49 lifetime anchor is established conceptually, but exact grandfather rules require confirmation.
+
+### 4. Whop URL
+
+Pending actual Whop store.
+
+### 5. V2 release
+
+September 28, 2026 is:
+
+**PROVISIONAL**
+
+not guaranteed.
+
+---
+
+# 65. STALE LANGUAGE TO REMOVE
+
+Unless deliberately reintroduced:
+
+* “FREE BETA”
+* “Free Forever”
+* “No Trial”
+* “No Countdown”
+* “Prop Firm Ready”
+* “execution calls”
+
+These belong to previous positioning and should not survive accidentally.
+
+---
+
+# 66. LANGUAGE THAT SHOULD REMAIN
+
+The product should retain strong authentic statements such as:
+
+> **TRON is not a signal provider.**
+
+and:
+
+> **No signal is better than a bad signal.**
+
+and:
+
+> **TRON does not need to predict price. TRON needs to read price exceptionally well.**
+
+These communicate the product philosophy better than generic SaaS language.
+
+---
+
+# 67. TRON'S DIFFERENTIATOR
+
+The strongest differentiation is not:
+
+> “We have BUY and SELL signals.”
+
+The stronger proposition is:
+
+> **The system exposes the market information behind its decision context.**
+
+That includes:
+
+* structure,
+* momentum,
+* liquidity,
+* trend,
+* sessions,
+* PSAR,
+* trail,
+* MTF context,
+* and position framing.
+
+The BUY / SELL labels are useful because they make the output explicit.
+
+But they should not become the entire identity of TRON.
+
+---
+
+# 68. PRODUCT POSITIONING
+
+TRON should sit between:
+
+### Raw chart reading
+
+and:
+
+### Black-box signals.
+
+The proposition is:
+
+> **Structured market intelligence.**
+
+The operator gets more structure than manually scanning dozens of variables, while retaining visibility into what the engine is reading.
+
+---
+
+# 69. COMPETITOR / ECOSYSTEM RESEARCH
+
+Relevant ecosystem references for future research include:
+
+* LuxAlgo
+* AlgoBot
+* TradesAI
+
+Research should examine:
+
+* positioning,
+* UI,
+* feature hierarchy,
+* onboarding,
+* pricing,
+* trust mechanisms,
+* user expectations,
+* and differentiation.
+
+The purpose is not to copy competitors.
+
+The purpose is to understand the category.
+
+---
+
+# 70. PRODUCT ROADMAP
+
+## Phase 1 — V1.1 Freeze
+
+Current.
+
+Establish:
+
+* source truth,
+* parameters,
+* UI,
+* messaging,
+* onboarding,
+* evaluation.
+
+## Phase 2 — V1 Commercial Access
+
+Build:
+
+* Whop,
+* entitlement,
+* access process,
+* grandfathering.
+
+## Phase 3 — Website
+
+Lovable becomes the clean ADI front door.
+
+## Phase 4 — V2
+
+Controlled premium evolution.
+
+## Phase 5 — Webhooks
+
+Formalize TradingView alert contracts.
+
+## Phase 6 — External TRON Intelligence
+
+Structured market-intelligence delivery.
+
+## Phase 7 — TRON Live
+
+Operator interface/dashboard.
+
+## Phase 8 — Auto-Trader
+
+Deriv API / execution infrastructure where appropriate.
+
+---
+
+# 71. FUTURE TRON LIVE
+
+Long-term concept:
+
+A TRON operator dashboard containing:
+
+* live signal/event feed,
+* confidence/context information where appropriately defined,
+* win/loss tracking where objectively measured,
+* historical reads,
+* session state,
+* market context,
+* operator journal,
+* and eventually automation.
+
+The dashboard should not become a black-box “copy my trades” product.
+
+---
+
+# 72. AUTO-TRADER
+
+Long-term:
+
+**TRON Auto-Trader**
+
+Potentially through:
+
+**Deriv API**
+
+This is future infrastructure.
+
+It must remain clearly separated from the current V1.1 product.
+
+---
+
+# 73. SAFETY / RESPONSIBLE POSITIONING
+
+Trading is financially risky.
+
+ADI/TRON marketing should not encourage reckless behavior.
 
 Avoid:
 
-magic AI
+* “easy money”
+* “guaranteed income”
+* “never lose”
+* “high win rate”
+* “quit your job”
+* “guaranteed funding”
+* “guaranteed prop success”
+* or similar claims.
 
-guaranteed signals
+TRON is an educational and decision-support framework.
 
-guaranteed profits
+The operator remains responsible for:
 
-prediction machine
+* decisions,
+* risk,
+* execution,
+* and capital.
 
-win-rate promises
+---
 
-"AI knows where price will go"
+# 74. EMANUEL / FOUNDER CONCERNS
 
-arbitrary confidence percentages
+The following concerns are important because they describe the product owner's actual intent and should inform future decisions.
 
-invented signals
+### Concern 1 — Authenticity
 
-language that implies TRON can guarantee outcomes
+> “The page feels conversational like... It lost it's authenticity I had done but no worries. I'll work it out”
 
-31. SAFETY / CLAIMS DISCIPLINE
+Interpretation:
 
-The product should be described accurately.
+The website must not become so AI-polished that the founder's original voice disappears.
 
-Do not make unsupported performance claims.
+---
 
-Do not claim that TRON guarantees profitable outcomes.
+### Concern 2 — Ownership
 
-Do not fabricate backtests.
+> “A reply is better than editing..I realize giving you access was not very wise but we learn.”
 
-Do not turn historical observations into guaranteed future results.
+This establishes the new workflow:
 
-The system should clearly distinguish:
+**Review first. Edit second.**
 
-Observed TRON state
+The assistant should provide critique and recommendations before making external changes.
 
-from
+---
 
-operator interpretation
+### Concern 3 — Lovable should not own the product direction
 
-from
+Lovable can implement.
 
-future uncertainty
+It should not independently redefine:
 
-32. WHAT THE USER WANTS TO DO NEXT
+* product positioning,
+* TRON capabilities,
+* commercial structure,
+* founder voice,
+* or roadmap.
 
-Immediate sequence:
+---
 
-STEP 1 — Upload TRON V1 source
+### Concern 4 — Commercial funnel
 
-The complete V1 Pine source will be supplied.
+The intended idea is:
 
-STEP 2 — Verify this handover against source
+> “Instagram boost / Facebook / WhatsApp Status → Lovable → WhatsApp → activation/evaluation”
 
-Audit the dictionary and update any technical details that differ from the actual source.
+The website therefore has to function as the **front door**, not as the entire business.
 
-STEP 3 — Update Lovable
+---
 
-Do not redesign.
+### Concern 5 — Whop
 
-Update the current landing page to:
+The product architecture is:
 
-remove August beta positioning;
+> **“Lovable = ADI front door; Whop = commercial/access door.”**
 
-establish V1.1 as the current live product;
+This distinction should remain foundational.
 
-add V1.1 update log;
+---
 
-explain BUY/SELL labels;
+### Concern 6 — V1.1 versus V2
 
-recommend M5 as execution timeframe;
+V1.1 is the current product.
 
-recommend Alpha Gate for M1 execution;
+V2 is the future premium evolution.
 
-clearly communicate H1 → M15 → M5 workflow;
+The site must create anticipation without pretending V2 already exists.
 
-introduce V2;
+---
 
-add the 25-day countdown;
+### Concern 7 — Seven-day evaluation
 
-introduce the grandfather/lifetime offer;
+The planned commercial journey is:
 
-keep the current visual system.
+> seven-day free V1.1 evaluation
 
-STEP 4 — Build Whop
+followed by an upsell toward full V1.1 access.
 
-Use Whop as the commercial/access layer for the premium product.
+The exact mechanics must be finalized before hard-coding.
 
-STEP 5 — Future webhook proof
+---
 
-Prove:
+### Concern 8 — Grandfather pricing
 
-TradingView → webhook → TRON event → externalized TRON state.
+The current commercial thinking is:
 
-STEP 6 — Future TRON AI
+> after the 7 days free trial we upsell full access untill release of V2 for grandfather pricing 50% off right at 24.5
 
-Build the deterministic augmented-intelligence layer around those actual events.
+This is a working commercial concept, not yet a permanent pricing rule.
 
-33. CURRENT STRATEGIC VISION
+---
 
-The project is moving from:
+### Concern 9 — Broker / affiliate path
 
-"A TradingView indicator with a community around it"
+The founder has considered an affiliate path involving Deriv, particularly around:
 
-toward:
+* Gold,
+* Synthetic Indices,
+* and execution infrastructure.
 
-"A deterministic market-intelligence engine with multiple interfaces."
+This should be treated as an ecosystem/affiliate decision, not allowed to distort the core TRON product.
 
-The interfaces can eventually include:
+---
 
-TradingView
+### Concern 10 — Asset agnosticism
 
-TRON Live
+The founder's intended positioning is that TRON is not tied to one market.
 
-Lovable
+The framework can potentially span:
 
-Telegram
+* Gold,
+* Forex,
+* Synthetic Indices,
+* Crypto,
+* Bybit,
+* and other compatible environments.
 
-WhatsApp
+The website should therefore emphasize the **framework**, not one broker.
 
-archive / tape
+---
 
-future APIs
+# 75. IMPORTANT FOUNDER WORKFLOW OBSERVATION
 
-future data sources
+The founder's actual product-development philosophy has been iterative:
 
-But the underlying identity remains:
+* build,
+* test,
+* observe,
+* receive operator feedback,
+* refine,
+* compare,
+* and repeat.
 
-TRON is the deterministic market-reading engine.
+The website should communicate this.
 
-And the future AI layer is:
+That is much stronger than pretending TRON emerged fully formed.
 
-Augmented Intelligence that continuously externalizes and organizes what TRON is actually observing as price develops.
+---
 
-34. FINAL SOURCE-OF-TRUTH HIERARCHY
+# 76. “BEYOND BETA”
 
-When making future decisions, use this order:
+The current V1.1 positioning should communicate:
 
-Actual TRON V1/V1.1 Pine source
+> **Beyond beta.**
 
-User's explicit product decisions in the current conversation
+But this does not mean:
 
-The externalized TRON dictionary
+> “Perfect.”
 
-The user's Telegram market-intelligence templates
+It means:
 
-Existing Lovable project architecture/components
+* refined,
+* tested,
+* iterated,
+* informed by operator feedback,
+* and now entering a more mature product phase.
 
-General implementation assumptions
+---
 
-If an assumption conflicts with the actual source, the source wins.
+# 77. DESIGN RULE
 
-If an old Lovable message conflicts with the latest explicit product decision, the latest decision wins.
+When editing the website:
 
-If generic AI reasoning conflicts with the user's established TRON methodology, do not substitute generic reasoning.
+### Preserve first.
 
-35. ONE-SENTENCE DEFINITION FOR INTERNAL AI
+Then:
 
-TRON is a deterministic market-reading engine implemented as a live Pine Script indicator; TRON AI is the future augmented-intelligence layer that receives TRON's actual live states/events, maintains their evolving context, prepares faithful analysis and opportunity monitoring as price develops, and communicates those observations across Lovable and external channels without inventing or overriding the underlying TRON logic.
+### Clarify.
 
-PENDING SOURCE FILE
+Then:
 
-TRON V1 Pine Script: awaiting upload.
+### Improve conversion.
 
-Once uploaded, perform a source-level reconciliation of this handover before modifying the technical documentation or Lovable implementation.
+Only then:
+
+### Add.
+
+Do not:
+
+### Redesign because redesign is possible.
+
+---
+
+# 78. COPY RULE
+
+The best copy should be:
+
+* direct,
+* confident,
+* technically grounded,
+* human,
+* occasionally opinionated,
+* concise,
+* and authentic.
+
+Avoid:
+
+* excessive SaaS jargon,
+* fake urgency,
+* excessive emojis,
+* generic “revolutionary AI” language,
+* over-explanation,
+* and corporate filler.
+
+---
+
+# 79. THE PRODUCT SHOULD FEEL LIKE A BUILDER'S WORK
+
+The visitor should feel:
+
+> “Someone actually built this because they wanted to solve a real problem in how they read the market.”
+
+Not:
+
+> “Someone assembled another trading indicator landing page.”
+
+This is a critical brand distinction.
+
+---
+
+# 80. FUTURE CONTENT
+
+Potential educational content:
+
+* Multipliers explained
+* TRON workflow
+* H1/M15/M5 framework
+* Reading market structure
+* Understanding liquidity
+* Understanding PSAR
+* Understanding the Liquidity Trail
+* Why explicit BUY/SELL labels exist
+* Alpha Gate
+* Killzones
+* Synthetic indices
+* Gold
+* Crypto
+* TradingView workflow
+
+Educational content should teach the framework rather than simply push the product.
+
+---
+
+# 81. COMMUNITY CONTENT STANDARD
+
+Canonical public intelligence:
+
+**H1 → M15 → M5 → TRON Synthesis → Operator Watch**
+
+Every market read should distinguish:
+
+* observation,
+* interpretation,
+* and operator decision.
+
+Never fabricate certainty.
+
+---
+
+# 82. TRON DICTIONARY
+
+Future development should maintain a centralized dictionary defining:
+
+* every TRON component,
+* every state,
+* every signal,
+* every dashboard label,
+* every parameter,
+* every alert,
+* and every narrative rule.
+
+This reduces semantic drift between:
+
+* Pine,
+* website,
+* community,
+* Whop,
+* documentation,
+* and future software.
+
+---
+
+# 83. VERSION CONTROL
+
+Every product version must have:
+
+* version number,
+* release state,
+* source truth,
+* feature inventory,
+* parameter inventory,
+* UI terminology,
+* alert inventory,
+* commercial status.
+
+### V1.1
+
+**CURRENT / LIVE**
+
+### V2
+
+**FUTURE / PROVISIONAL**
+
+---
+
+# 84. UPDATE LOG
+
+## 2026-09-04 — Master MD established
+
+The existing August 24 Lovable plan was promoted into the evolving Master MD rather than creating another competing document.
+
+Established:
+
+* V1.1 as current live product
+* V2 as future product
+* source hierarchy
+* commercial architecture
+* Lovable front door
+* WhatsApp onboarding/community
+* TradingView V1.1 delivery
+* Whop commercial/access
+* $49 lifetime anchor
+* claims discipline
+* V2 provisional September 28 target
+* Founding 50 concept
+* website change-control principles.
+
+---
+
+## 2026-09-04 — V1.1 Website Positioning
+
+The website is being moved away from stale:
+
+* Free Forever
+* FREE BETA
+* No Trial
+* Prop Firm Ready
+
+positioning.
+
+Current emphasis:
+
+* V1.1
+* explicit BUY/SELL labels
+* H1 → M15 → M5 workflow
+* operator-informed Alpha Gate recommendation
+* Beyond beta
+* WhatsApp onboarding
+* TradingView product experience
+* future Whop access.
+
+---
+
+## 2026-09-04 — “What's New in V1.1”
+
+Dedicated V1.1 update section established after TRON in action and before The Tape.
+
+Core messages:
+
+* explicit BUY / SELL labels,
+* H1 → M15 → M5,
+* M1 Alpha Gate operator recommendation,
+* real operator feedback,
+* beyond beta.
+
+---
+
+## 2026-09-04 — V2 Countdown
+
+V2 provisional target established:
+
+**September 28, 2026**
+
+Founding 50 pricing concept:
+
+**$49 lifetime**
+
+V2 remains:
+
+**not live / not included in V1.1.**
+
+---
+
+## 2026-08-24 — Historical Website Conversion Plan
+
+Original objective:
+
+> Convert the page into a channel-join machine.
+
+The original plan emphasized:
+
+* clear joining,
+* Telegram,
+* WhatsApp,
+* sticky mobile CTA,
+* channel selection,
+* simplified conversion.
+
+This remains useful historical context but has been superseded by the newer architecture:
+
+**Lovable → WhatsApp → TradingView V1.1 → Whop**
+
+The historical plan should not be deleted because it documents how the funnel evolved.
+
+---
+
+# 85. CURRENT MASTER FUNNEL
+
+The current intended model is:
+
+```text
+SOCIAL TRAFFIC
+Instagram
+Facebook
+WhatsApp Status
+        ↓
+ADI / LOVABLE
+Education
+Trust
+TRON demonstration
+Product explanation
+        ↓
+WHATSAPP
+Onboarding
+Questions
+Community
+Evaluation
+        ↓
+TRADINGVIEW
+TRON Alpha V1.1
+        ↓
+WHOP
+Commercial access
+Entitlement
+Lifetime purchase
+        ↓
+V2
+Future premium evolution
+        ↓
+TRON LIVE
+Future operator platform
+```
+
+---
+
+# 86. FINAL PRODUCT PRINCIPLE
+
+The entire ecosystem should ultimately reinforce one idea:
+
+> **TRON is not here to replace the operator.**
+
+It exists to make the market easier to read.
+
+The product should therefore continually move the user through:
+
+# Learn.
+
+# Understand.
+
+# Observe.
+
+# Execute.
+
+And the deeper principle remains:
+
+# TRON DOES NOT NEED TO PREDICT PRICE.
+
+# TRON NEEDS TO READ PRICE EXCEPTIONALLY WELL.
+
+---
+
+# 87. MASTER DECISION RULE
+
+Whenever a future idea is proposed, ask:
+
+### Does it make TRON better at reading price?
+
+### Does it make the operator understand TRON better?
+
+### Does it preserve transparency?
+
+### Does it preserve the founder's authenticity?
+
+### Is it supported by source truth?
+
+### Is it actually current, or is it V2?
+
+### Does it improve the user journey without turning the product into generic marketing?
+
+If the answer is unclear:
+
+**do not implement yet.**
+
+Discuss first.
+
+---
+
+# 88. CURRENT STATE
+
+As of **September 4, 2026**:
+
+**TRON Alpha V1.1 is the current product.**
+
+**V2 is future.**
+
+**Lovable is the ADI front door.**
+
+**WhatsApp is the onboarding/community door.**
+
+**TradingView is the V1.1 product environment.**
+
+**Whop is the commercial/access door.**
+
+**$49 lifetime is the current standard pricing anchor.**
+
+**September 28, 2026 is a provisional V2 release target.**
+
+**The seven-day evaluation is a planned onboarding/commercial mechanism requiring final offer confirmation before being hard-coded everywhere.**
+
+**The founder's voice and authenticity are non-negotiable.**
+
+And from this point forward:
+
+> **Reply first. Edit second.**
+
+No external implementation should happen merely because an AI thinks an edit is “better.”
+
+The product owner decides.
+
+The MD remembers.
+
+The tools implement.
